@@ -49,7 +49,6 @@ void WebSocketServer::initialize(Application &self)
     Poco::AutoPtr<Poco::AsyncChannel> aCh(new Poco::AsyncChannel(fChannel));
     self.logger().setChannel(aCh);
 #ifdef DEBUG
-    std::cout << self.logger().name() << std::endl;
     self.logger().setLevel(Poco::Message::PRIO_DEBUG);
 #else
     self.logger().setLevel(Poco::Message::PRIO_INFORMATION);
