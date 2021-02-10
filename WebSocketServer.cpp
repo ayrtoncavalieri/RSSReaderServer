@@ -117,7 +117,7 @@ int WebSocketServer::main(const std::vector<std::string>& args)
         // set-up a server socket
         SecureServerSocket svs(port, 128, pContext);
 #else
-        ServerSocket svs(port);
+        ServerSocket svs(port, 128);
 #endif
         // set-up a HTTPServer instance
         HTTPServer srv(new RequestHandlerFactory, pool, svs, new HTTPServerParams);
