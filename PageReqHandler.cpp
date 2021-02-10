@@ -31,7 +31,7 @@ void PageRequestHandler::handleRequest(HTTPServerRequest &request, HTTPServerRes
 		ostr << "  <p></p>";
 		ostr << "<script type=\"text/javascript\">";
 		ostr << "function redirect(){";
-		ostr << "window.location.replace(\"http://www.aplikoj.com/vue\");";
+		ostr << "window.location.replace(\"http://www.aplikoj.com/\");";
 		ostr << "}";
 		ostr << "</script>";
 		ostr << "</body>";
