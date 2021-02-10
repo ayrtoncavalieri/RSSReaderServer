@@ -36,7 +36,7 @@ std::string ServerOps::processReq(std::string &req)
     //Process data
     try{
         reqJSON = p.parse(req.substr(3, std::string::npos)).extract<Poco::JSON::Object::Ptr>();
-        option = reqJSON->getValue<unsigned int>("option");
+        sscanf(req.substr(0, 3).c_str(), "%d", &option);
 
         //Select option and do something.
 
