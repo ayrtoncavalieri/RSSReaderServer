@@ -33,14 +33,14 @@ void WebSocketServer::initialize(Application &self)
     ServerApplication::initialize(self);
     Poco::AutoPtr<Poco::FileChannel> fCh(new Poco::FileChannel);
 #ifndef DEBUG
-    fCh->setProperty("path", "RSSServer.log");
+    fCh->setProperty("path", "RSSReaderServer.log");
     fCh->setProperty("rotation", "daily");
     fCh->setProperty("archive", "timestamp");
     fCh->setProperty("times", "local");
     fCh->setProperty("compress", "true");
     fCh->setProperty("purgeAge", "6 months");
 #else
-    fCh->setProperty("path", "RSSServer.debug.log");
+    fCh->setProperty("path", "RSSReaderServer.debug.log");
 #endif
     Poco::AutoPtr<Poco::PatternFormatter> formatter(new Poco::PatternFormatter);
     formatter->setProperty("times", "local");
@@ -84,7 +84,7 @@ void WebSocketServer::displayHelp()
     HelpFormatter helpFormatter(options());
     helpFormatter.setCommand(commandName());
     helpFormatter.setUsage("OPTIONS");
-    helpFormatter.setHeader("This is the Poco ServerShell. A dummy server for developing applications.");
+    helpFormatter.setHeader("This is the RSSReaderServer. A server for an RSSReader application");
     helpFormatter.format(std::cout);
 }
 

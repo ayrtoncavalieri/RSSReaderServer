@@ -13,7 +13,7 @@
                 "-I ${fileDirname}/",
                 "${fileDirname}/*.cpp",
                 "-o",
-                "${fileDirname}/RSSServer.out",
+                "${fileDirname}/RSSReaderServer.out",
                 "-lPocoFoundation",
                 "-lPocoNet",
                 "-lPocoUtil",
