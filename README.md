@@ -1,3 +1,3 @@
-# Server_Shell
-This is the server shell for applications that use WebSocket from Poco framework.
+# RSSServer
+This is a simple RSSServer that uses the Poco Framework and WebSockets.
 

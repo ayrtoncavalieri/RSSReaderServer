@@ -33,14 +33,14 @@ void WebSocketServer::initialize(Application &self)
     ServerApplication::initialize(self);
     Poco::AutoPtr<Poco::FileChannel> fCh(new Poco::FileChannel);
 #ifndef DEBUG
-    fCh->setProperty("path", "realPath.log");
+    fCh->setProperty("path", "RSSServer.log");
     fCh->setProperty("rotation", "daily");
     fCh->setProperty("archive", "timestamp");
     fCh->setProperty("times", "local");
     fCh->setProperty("compress", "true");
     fCh->setProperty("purgeAge", "6 months");
 #else
-    fCh->setProperty("path", "ShellServer.debug.log");
+    fCh->setProperty("path", "RSSServer.debug.log");
 #endif
     Poco::AutoPtr<Poco::PatternFormatter> formatter(new Poco::PatternFormatter);
     formatter->setProperty("times", "local");
