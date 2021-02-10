@@ -1,3 +1,3 @@
-# RSSServer
-This is a simple RSSServer that uses the Poco Framework and WebSockets.
+# RSSReaderServer
+This is a simple server for a RSSReader application that uses the Poco Framework and WebSockets.
 
