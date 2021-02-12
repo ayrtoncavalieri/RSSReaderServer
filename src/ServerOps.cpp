@@ -30,7 +30,8 @@ ServerOps::~ServerOps()
 std::string ServerOps::processReq(std::string &req)
 {
     std::string respJSON; //32 bytes
-    Poco::JSON::Object::Ptr reqJSON, procJSON; //16 bytes * 2  
+    Poco::JSON::Object::Ptr reqJSON; //16 bytes
+    Poco::JSON::Object::Ptr procJSON; //16 bytes
     Poco::JSON::Parser p; //40 bytes
     unsigned int option = 0; //4 bytes
     //Process data
@@ -39,6 +40,15 @@ std::string ServerOps::processReq(std::string &req)
         option = Poco::NumberParser::parseUnsigned(req.substr(0, 3));
 
         //Select option and do something.
+        switch(option){
+
+            default:
+                std::string reason = "Unknown Option";
+                reason += " -> ";
+                reason += req.substr(0, 3);
+                commonOps::logMessage("ServerOps::processReq", reason, Message::PRIO_INFORMATION);
+                procJSON = commonOps::erroOpJSON(option, "unknown_option");
+        }
 
     }catch(Poco::SyntaxException &e){
         std::string reason = "Poco SyntaxException";
