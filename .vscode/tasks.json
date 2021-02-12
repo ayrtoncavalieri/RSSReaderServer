@@ -10,8 +10,8 @@
             "args": [
                 "-g",
                 "-DDEBUG",
-                "-I ${fileDirname}/src/",
-                "${fileDirname}/src/*.cpp",
+                "-I ${fileDirname}/",
+                "${fileDirname}/*.cpp",
                 "-o",
                 "${fileDirname}/RSSReaderServer.out",
                 "-lPocoFoundation",
