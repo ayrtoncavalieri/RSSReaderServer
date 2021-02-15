@@ -34,7 +34,7 @@ std::string ServerOps::processReq(std::string &req)
     Poco::JSON::Object::Ptr procJSON; //16 bytes
     Poco::JSON::Parser p; //40 bytes
     unsigned int option = 0; //4 bytes
-    std::string params = "host=127.0.0.1;port=3306;user=root;password=Jeannine1195-daemonic;db=laveesec;auto-reconnect=true";
+    std::string params = "host=127.0.0.1;port=3306;user=root;password=Pedro0058!;db=rssreader;auto-reconnect=true";
     //Process data
     try{
         reqJSON = p.parse(req.substr(3, std::string::npos)).extract<Poco::JSON::Object::Ptr>();
