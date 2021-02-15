@@ -1,6 +1,6 @@
 #include "subscription.hpp"
 
-Poco::JSON::Object::Ptr subs(unsigned int op, Poco::JSON::Object::Ptr req, Poco::Data::Session &session, std::string salt)
+Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::Ptr req, /*Poco::Data::Session &session,*/ std::string salt)
 {
     // {nome, email, senha}
     //Com G - {jwt:string}
@@ -29,19 +29,13 @@ Poco::JSON::Object::Ptr subs(unsigned int op, Poco::JSON::Object::Ptr req, Poco:
 
             Poco::JSON::Parser p; 
             Poco::JSON::Object::Ptr gJSON = p.parse(gResponse).extract<Poco::JSON::Object::Ptr>();
-            /*
-            for(Object::ConstIterator i = object->begin(); i != object->end(); ++i){
-                std::cout << i->first << " - ";
-                std::cout << i->second.convert<std::string>() << std::endl;
-            }
-            */
+            
             Poco::JSON::Object::ConstIterator i;
-            Poco::SharedPtr<Poco::Crypto::RSAKey> ptrKey;
             Poco::JWT::Token emBlanco;
             for(i = gJSON->begin(); i != gJSON->end(); ++i){
                 std::istringstream sKeyPEM(i->second.convert<std::string>());
                 Poco::Crypto::X509Certificate certGoogle(sKeyPEM);
-                ptrKey = new Poco::Crypto::RSAKey(certGoogle);
+                Poco::SharedPtr<Poco::Crypto::RSAKey> ptrKey = new Poco::Crypto::RSAKey(certGoogle);
                 Poco::JWT::Signer signer(ptrKey);
                 signer.addAllAlgorithms();
                 if(signer.tryVerify(jwt, emBlanco)){
@@ -56,12 +50,7 @@ Poco::JSON::Object::Ptr subs(unsigned int op, Poco::JSON::Object::Ptr req, Poco:
             reqResp->set("login", "true");
             Poco::UUIDGenerator uuidGen;
             reqResp->set("uuid", uuidGen.createRandom().toString());
-            // Verifying with first key
-            /*
-
-            Poco::JWT::Signer signer(n);
-            signer.addAllAlgorithms();
-            Poco::JWT::Token tok;*/
+            
             
         }else{
 
