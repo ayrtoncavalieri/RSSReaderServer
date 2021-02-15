@@ -22,12 +22,19 @@
 #include <exception>
 #include "PocoInclude.hpp"
 #include "commonOps.hpp"
+#include "opsImplementation.hpp"
 #include <Poco/NumberParser.h>
 #include <Poco/NumberFormatter.h>
 #include <Poco/JSON/Parser.h>
 #include <Poco/JSON/Object.h>
 #include <Poco/JSON/Array.h>
 #include <Poco/Data/DataException.h>
+
+#include <Poco/Data/Session.h>
+#include <Poco/Data/MySQL/Connector.h>
+#include <Poco/Data/MySQL/MySQLException.h>
+
+#include <Poco/JWT/JWTException.h>
 
 class ServerOps
 {
