@@ -6,7 +6,7 @@
                 "${workspaceFolder}/**"
             ],
             "defines": ["DEBUG"],
-            "compilerPath": "/usr/bin/gcc",
+            "compilerPath": "gcc",
             "intelliSenseMode": "clang-x64"
         }
     ],
