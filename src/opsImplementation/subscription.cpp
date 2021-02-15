@@ -1,6 +1,6 @@
 #include "subscription.hpp"
 
-Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::Ptr req, /*Poco::Data::Session &session,*/ std::string salt)
+Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::Ptr req, Poco::Data::Session &session, std::string salt)
 {
     // {nome, email, senha}
     //Com G - {jwt:string}
