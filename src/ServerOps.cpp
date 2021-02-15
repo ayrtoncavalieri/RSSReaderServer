@@ -34,14 +34,14 @@ std::string ServerOps::processReq(std::string &req)
     Poco::JSON::Object::Ptr procJSON; //16 bytes
     Poco::JSON::Parser p; //40 bytes
     unsigned int option = 0; //4 bytes
-    std::string params = "host=127.0.0.1;port=3306;user=root;password=Jeannine1195-daemonic;db=laveesec;auto-reconnect=true";
+    std::string params = "host=172.23.223.85;port=3306;user=root;password=Jeannine1195-daemonic;db=laveesec;auto-reconnect=true";
     //Process data
     try{
         reqJSON = p.parse(req.substr(3, std::string::npos)).extract<Poco::JSON::Object::Ptr>();
         option = Poco::NumberParser::parseUnsigned(req.substr(0, 3));
 
-        Poco::Data::MySQL::Connector::registerConnector();
-        Poco::Data::Session session("MySQL", params.c_str());
+        /*Poco::Data::MySQL::Connector::registerConnector();
+        Poco::Data::Session session("MySQL", params.c_str());*/
         //Select option and do something.
         switch(option){
             /*
@@ -60,7 +60,7 @@ std::string ServerOps::processReq(std::string &req)
                 150 - Excluir usuário
             */
             case 100:
-                procJSON = subscription::subs(option, reqJSON, session, salt);
+                procJSON = subscription::subs(option, reqJSON, /*session,*/ salt);
                 break;
             case 101:
                 break;
