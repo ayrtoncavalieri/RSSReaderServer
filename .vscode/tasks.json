@@ -11,6 +11,8 @@
                 "-g",
                 "-DDEBUG",
                 "-I ${fileDirname}/",
+                "-I ${fileDirname}/opsImplementation",
+                "${fileDirname}/opsImplementation/*.cpp",
                 "${fileDirname}/*.cpp",
                 "-o",
                 "${fileDirname}/RSSReaderServer.out",
@@ -21,7 +23,8 @@
                 "-lPocoCrypto",
                 "-lPocoData",
                 "-lPocoDataMySQL",
-                "-lPocoJSON"
+                "-lPocoJSON",
+                "-lPocoJWT"
             ],
             "options": {
                 "cwd": "/usr/bin"
