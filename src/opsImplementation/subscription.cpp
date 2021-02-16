@@ -23,13 +23,12 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             googleJWT.sendRequest(googleJWTReq);
             Poco::Net::HTTPResponse googleJWTResp;
             std::istream& resp = googleJWT.receiveResponse(googleJWTResp);
-            std::string gResponse;
-            std::getline(resp, gResponse);
+            std::string gResponse(std::istreambuf_iterator<char>(resp), {});
             Poco::Net::uninitializeSSL();
 
             Poco::JSON::Parser p; 
             Poco::JSON::Object::Ptr gJSON = p.parse(gResponse).extract<Poco::JSON::Object::Ptr>();
-            
+
             Poco::JSON::Object::ConstIterator i;
             Poco::JWT::Token emBlanco;
             for(i = gJSON->begin(); i != gJSON->end(); ++i){
@@ -46,6 +45,8 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
                 Poco::JWT::SignatureVerificationException e;
                 throw e;   
             }
+            Poco::JSON::Object jwtJSON = emBlanco.payload();
+            
             reqResp = new Poco::JSON::Object;
             reqResp->set("login", "true");
             Poco::UUIDGenerator uuidGen;
