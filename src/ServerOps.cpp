@@ -133,6 +133,12 @@ std::string ServerOps::processReq(std::string &req)
         reason += e.message();
         commonOps::logMessage("ServerOps::processReq", reason, Message::PRIO_CRITICAL);
         procJSON = commonOps::erroOpJSON(option, "server_exception");
+    }catch(GoogleAuthenticationException &e){
+        std::string reason = e.what();
+        reason += "->";
+        reason += e.message();
+        commonOps::logMessage("ServerOps::processReq", reason, Message::PRIO_WARNING);
+        procJSON = commonOps::erroOpJSON(option, "authentication_exception");
     }catch(std::exception &e){
         std::string reason = "std::exception";
         reason += " -> ";

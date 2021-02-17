@@ -20,6 +20,7 @@
 
 #include "../PocoInclude.hpp"
 #include "../commonOps.hpp"
+#include "../GoogleAuthException.hpp"
 
 #include <Poco/NumberParser.h>
 #include <Poco/NumberFormatter.h>

@@ -73,7 +73,8 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             long timeNow = time(NULL);
 
             if((iss.compare("accounts.google.com") && iss.compare("https://accounts.google.com")) || expTime < timeNow){
-                //uonoau
+                GoogleAuthenticationException e;
+                throw e;
             }
 
             reqResp = new Poco::JSON::Object;
