@@ -63,12 +63,9 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
                 Poco::JWT::SignatureVerificationException e;
                 throw e;   
             }
+            
             Poco::JSON::Object jwtJSON = emBlanco.payload();
-
-            std::string picLink = jwtJSON.getValue<std::string>("picture");
-            bool emailVerified = jwtJSON.getValue<bool>("email_verified");
             std::string iss = jwtJSON.getValue<std::string>("iss");
-            name = jwtJSON.getValue<std::string>("name");
             long expTime = jwtJSON.getValue<long>("exp");
             long timeNow = time(NULL);
 
@@ -76,6 +73,10 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
                 GoogleAuthenticationException e;
                 throw e;
             }
+
+            std::string picLink = jwtJSON.getValue<std::string>("picture");
+            bool emailVerified = jwtJSON.getValue<bool>("email_verified");
+            name = jwtJSON.getValue<std::string>("name");
 
             reqResp = new Poco::JSON::Object;
             reqResp->set("login", "true");
