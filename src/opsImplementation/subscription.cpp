@@ -5,6 +5,7 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
     // {nome, email, senha}
     //Com G - {jwt:string}
     Poco::JSON::Object::Ptr reqResp;
+    std::string email, name;
     try{
         if(req->has("jwt")){ //Google login
             std::string jwt = req->getValue<std::string>("jwt");
@@ -46,12 +47,22 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
                 throw e;   
             }
             Poco::JSON::Object jwtJSON = emBlanco.payload();
-            
+
+            std::string picLink = jwtJSON.getValue<std::string>("picture");
+            bool emailVerified = jwtJSON.getValue<bool>("email_verified");
+            std::string iss = jwtJSON.getValue<std::string>("iss");
+            name = jwtJSON.getValue<std::string>("name");
+            long expTime = jwtJSON.getValue<long>("exp");
+            long timeNow = time(NULL);
+
+            if((iss.compare("accounts.google.com") && iss.compare("https://accounts.google.com")) || expTime < timeNow){
+                //uonoau
+            }
+
             reqResp = new Poco::JSON::Object;
             reqResp->set("login", "true");
             Poco::UUIDGenerator uuidGen;
             reqResp->set("uuid", uuidGen.createRandom().toString());
-            
             
         }else{
 

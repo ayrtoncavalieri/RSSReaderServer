@@ -25,6 +25,7 @@
 #include <Poco/Crypto/X509Certificate.h>
 #include <Poco/UUIDGenerator.h>
 #include <istream>
+#include <time.h>
 
 class subscription{
     public:
