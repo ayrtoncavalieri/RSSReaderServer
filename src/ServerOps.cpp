@@ -17,7 +17,7 @@
 
 #include "ServerOps.hpp"
 
-ServerOps::ServerOps(): salt("S417_3*ampl3")
+ServerOps::ServerOps(): salt("PCmTZN*4(c")
 {
 
 }
@@ -125,7 +125,7 @@ std::string ServerOps::processReq(std::string &req)
         reason += "->";
         reason += e.message();
         commonOps::logMessage("ServerOps::processReq", reason, Message::PRIO_WARNING);
-        procJSON = commonOps::erroOpJSON(option, "google_exception");
+        procJSON = commonOps::erroOpJSON(option, "google_crypto_exception");
     }catch(Poco::Exception &e){
         std::string reason = "Poco Exception: ";
         reason += e.className();
@@ -138,7 +138,7 @@ std::string ServerOps::processReq(std::string &req)
         reason += "->";
         reason += e.message();
         commonOps::logMessage("ServerOps::processReq", reason, Message::PRIO_WARNING);
-        procJSON = commonOps::erroOpJSON(option, "authentication_exception");
+        procJSON = commonOps::erroOpJSON(option, "invalid_request");
     }catch(std::exception &e){
         std::string reason = "std::exception";
         reason += " -> ";
