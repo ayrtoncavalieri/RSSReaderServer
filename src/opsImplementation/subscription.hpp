@@ -19,6 +19,7 @@
 #define SUBSHPP
 
 #include "../PocoInclude.hpp"
+#include "../PocoData.hpp"
 #include "../commonOps.hpp"
 #include "../GoogleAuthException.hpp"
 
@@ -30,9 +31,6 @@
 #include <Poco/JSON/Object.h>
 #include <Poco/JSON/Array.h>
 #include <Poco/Dynamic/Var.h>
-#include <Poco/Data/Session.h>
-#include <Poco/Data/MySQL/Connector.h>
-#include <Poco/Data/MySQL/MySQLException.h>
 #include <Poco/JWT/Token.h>
 #include <Poco/JWT/Signer.h>
 #include <Poco/JWT/JWTException.h>

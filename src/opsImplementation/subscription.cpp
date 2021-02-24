@@ -41,8 +41,13 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             googleJWT.sendRequest(googleJWTReq);
             Poco::Net::HTTPResponse googleJWTResp;
             std::istream& resp = googleJWT.receiveResponse(googleJWTResp);
-            std::string gResponse(std::istreambuf_iterator<char>(resp), {});
             Poco::Net::uninitializeSSL();
+
+            if(googleJWTResp.getStatus() != Poco::Net::HTTPResponse::HTTP_OK){
+                Poco::JWT::SignatureVerificationException e;
+                throw e; 
+            }
+            std::string gResponse(std::istreambuf_iterator<char>(resp), {});
 
             Poco::JSON::Parser p; 
             Poco::JSON::Object::Ptr gJSON = p.parse(gResponse).extract<Poco::JSON::Object::Ptr>();
@@ -63,28 +68,86 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
                 Poco::JWT::SignatureVerificationException e;
                 throw e;   
             }
-            
+
             Poco::JSON::Object jwtJSON = emBlanco.payload();
             std::string iss = jwtJSON.getValue<std::string>("iss");
             long expTime = jwtJSON.getValue<long>("exp");
             long timeNow = time(NULL);
+            std::string aud;
+            aud = jwtJSON.getValue<std::string>("aud");
 
-            if((iss.compare("accounts.google.com") && iss.compare("https://accounts.google.com")) || expTime < timeNow){
+            if((iss.compare("accounts.google.com") && iss.compare("https://accounts.google.com")) || expTime < timeNow || aud.compare("250982835780-6j2u60idrag2lpumgv48nal9vhi8ui8r.apps.googleusercontent.com")){
                 GoogleAuthenticationException e;
                 throw e;
             }
 
-            std::string picLink = jwtJSON.getValue<std::string>("picture");
-            bool emailVerified = jwtJSON.getValue<bool>("email_verified");
             name = jwtJSON.getValue<std::string>("name");
+            email = jwtJSON.getValue<std::string>("email");
+            bool emailVerified = jwtJSON.getValue<bool>("email_verified");
+            std::string picLink = jwtJSON.getValue<std::string>("picture");
+            std::string sub = jwtJSON.getValue<std::string>("sub"); //Adicionar no idGoogle
+            std::string idGoogle = "";
+            session << "SELECT idGoogle FROM rssreader.users WHERE idGoogle=?", into(idGoogle), use(sub), now;
+            unsigned int qtdUsers;
+            session << "SELECT COUNT(*) FROM rssreader.users WHERE email=?", into(qtdUsers), use(email), now; 
+            std::string userSettings = "";
+            if(idGoogle.empty() && qtdUsers == 0){
+                session << "INSERT INTO `rssreader`.`users` (`email`, `emailConfirmed`, `userName`, `idGoogle`, `othersInfo`, `linkPhoto`) VALUES (?, ?, ?, ?, '{}', ?)", use(email), use(emailVerified), use(name), use(sub), use(picLink), now;
+                if(!emailVerified){
+                    //Send confirmation e-mail
+                }
+            }else{
+                if(qtdUsers != 0){
+                    session << "INSERT INTO `rssreader`.`users` (`idGoogle`) VALUES (?) WHERE email=?", use(sub), use(email), now;
+                }
+                session << "SELECT email, linkPhoto, userName, settings FROM rssreader.users WHERE idGoogle=?", into(email), into(picLink), into(name), into(userSettings), use(sub), now;
+            }
+
+            Poco::UUIDGenerator uuidGen;
+            std::string uuid = uuidGen.createRandom().toString();
+            
+            session << "INSERT INTO `rssreader`.`navigators` (`email`, `uuid`) VALUES (?, ?)", use(email), use(uuid), now;
+            unsigned int qtdLinks;
+            session << "SELECT COUNT(*) FROM rssreader.links WHERE email=?", into(qtdLinks), use(email), now;
+            reqResp = new Poco::JSON::Object;
+            reqResp->set("login", "provider");
+            reqResp->set("email", email);
+            reqResp->set("uuid", uuid);
+            reqResp->set("feeds", qtdLinks);
+            reqResp->set("pic", picLink);
+            reqResp->set("name", name);
+            if(!userSettings.empty()){
+                reqResp->set("settings", userSettings);
+            }
+        }else{
+            Poco::UUIDGenerator uuidGen;
+            std::string uuid = uuidGen.createRandom().toString();
+
+            email = req->getValue<std::string>("email");
+            unsigned int qtdUsers;
+            session << "SELECT COUNT(*) FROM rssreader.users WHERE email=?", into(qtdUsers), use(email), now;
+            if(qtdUsers != 0){
+                return commonOps::erroOpJSON(op, "user_already_exists");
+            }
+            name = req->getValue<std::string>("name");
+            std::string password = req->getValue<std::string>("password");
+            std::string rSalt = commonOps::genRsalt(16);
+            password = commonOps::passwordCalc(password, salt, rSalt);
+            session << "INSERT INTO `rssreader`.`users` (`email`, `userName`, `userPassword`, rSalt, `othersInfo`, `linkPhoto`) VALUES (?, ?, ?, ?, '{}', '')",
+            use(email), use(name), use(password), use(rSalt), now;
+            session << "INSERT INTO `rssreader`.`navigators` (`email`, `uuid`) VALUES (?, ?)", use(email), use(uuid), now;
+            unsigned int qtdLinks;
+
+            
 
             reqResp = new Poco::JSON::Object;
-            reqResp->set("login", "true");
-            Poco::UUIDGenerator uuidGen;
-            reqResp->set("uuid", uuidGen.createRandom().toString());
-            
-        }else{
-
+            reqResp->set("login", "server");
+            reqResp->set("email", email);
+            reqResp->set("uuid", uuid);
+            reqResp->set("feeds", 0);
+            reqResp->set("pic", "");
+            reqResp->set("name", name);
+            //Enviar e-mail de confirmaçãos
         }
     }catch(...){
         throw;
