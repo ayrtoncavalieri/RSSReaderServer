@@ -102,8 +102,8 @@ int WebSocketServer::main(const std::vector<std::string>& args)
             new Poco::Net::ConsoleCertificateHandler(false);
         Poco::Net::Context::Ptr pContext = new Poco::Net::Context(
                 Poco::Net::Context::SERVER_USE,
-                "key.pem",
-                "cert.pem",
+                "/home/opc/certificados/key.pem",
+                "/home/opc/certificados/cert.pem",
                 "",
                 Poco::Net::Context::VERIFY_RELAXED,
                 9,
