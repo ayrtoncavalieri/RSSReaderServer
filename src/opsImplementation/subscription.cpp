@@ -98,7 +98,7 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
                 }
             }else{
                 if(qtdUsers != 0){
-                    session << "INSERT INTO `rssreader`.`users` (`idGoogle`) VALUES (?) WHERE email=?", use(sub), use(email), now;
+                    session << "UPDATE `rssreader`.`users` SET `idGoogle` = ? WHERE (`email` = ?)", use(sub), use(email), now;
                 }
                 session << "SELECT email, linkPhoto, userName, settings FROM rssreader.users WHERE idGoogle=?", into(email), into(picLink), into(name), into(userSettings), use(sub), now;
             }
@@ -137,8 +137,6 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             use(email), use(name), use(password), use(rSalt), now;
             session << "INSERT INTO `rssreader`.`navigators` (`email`, `uuid`) VALUES (?, ?)", use(email), use(uuid), now;
             unsigned int qtdLinks;
-
-            
 
             reqResp = new Poco::JSON::Object;
             reqResp->set("login", "server");
