@@ -92,7 +92,8 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             session << "SELECT COUNT(*) FROM rssreader.users WHERE email=?", into(qtdUsers), use(email), now; 
             std::string userSettings = "";
             if(idGoogle.empty() && qtdUsers == 0){
-                session << "INSERT INTO `rssreader`.`users` (`email`, `emailConfirmed`, `userName`, `idGoogle`, `othersInfo`, `linkPhoto`) VALUES (?, ?, ?, ?, '{}', ?)", use(email), use(emailVerified), use(name), use(sub), use(picLink), now;
+                session << "INSERT INTO `rssreader`.`users` (`email`, `emailConfirmed`, `userName`, `idGoogle`, `othersInfo`, `linkPhoto`) VALUES (?, ?, ?, ?, '{}', ?)", 
+                            use(email), use(emailVerified), use(name), use(sub), use(picLink), now;
                 if(!emailVerified){
                     //Send confirmation e-mail
                 }
@@ -100,7 +101,8 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
                 if(qtdUsers != 0){
                     session << "UPDATE `rssreader`.`users` SET `idGoogle` = ? WHERE (`email` = ?)", use(sub), use(email), now;
                 }
-                session << "SELECT email, linkPhoto, userName, settings FROM rssreader.users WHERE idGoogle=?", into(email), into(picLink), into(name), into(userSettings), use(sub), now;
+                session << "SELECT email, linkPhoto, userName, settings FROM rssreader.users WHERE idGoogle=?", 
+                            into(email), into(picLink), into(name), into(userSettings), use(sub), now;
             }
 
             Poco::UUIDGenerator uuidGen;
@@ -134,7 +136,7 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             std::string rSalt = commonOps::genRsalt(16);
             password = commonOps::passwordCalc(password, salt, rSalt);
             session << "INSERT INTO `rssreader`.`users` (`email`, `userName`, `userPassword`, rSalt, `othersInfo`, `linkPhoto`) VALUES (?, ?, ?, ?, '{}', '')",
-            use(email), use(name), use(password), use(rSalt), now;
+                        use(email), use(name), use(password), use(rSalt), now;
             session << "INSERT INTO `rssreader`.`navigators` (`email`, `uuid`) VALUES (?, ?)", use(email), use(uuid), now;
             unsigned int qtdLinks;
 
