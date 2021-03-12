@@ -22,6 +22,7 @@
 #include <exception>
 #include "PocoInclude.hpp"
 #include "commonOps.hpp"
+#include "secretText.hpp"
 #include "opsImplementation.hpp"
 #include <Poco/NumberParser.h>
 #include <Poco/NumberFormatter.h>

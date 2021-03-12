@@ -76,7 +76,7 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             std::string aud;
             aud = jwtJSON.getValue<std::string>("aud");
 
-            if((iss.compare("accounts.google.com") && iss.compare("https://accounts.google.com")) || expTime < timeNow || aud.compare("250982835780-6j2u60idrag2lpumgv48nal9vhi8ui8r.apps.googleusercontent.com")){
+            if((iss.compare("accounts.google.com") && iss.compare("https://accounts.google.com")) || expTime < timeNow || aud.compare(secretText::audVal())){
                 GoogleAuthenticationException e;
                 throw e;
             }
