@@ -19,5 +19,6 @@
 #define OPSIMP_H
 
 #include "opsImplementation/subscription.hpp"
+#include "opsImplementation/login.hpp"
 
 #endif

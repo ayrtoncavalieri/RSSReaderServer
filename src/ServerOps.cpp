@@ -63,6 +63,7 @@ std::string ServerOps::processReq(std::string &req)
                 procJSON = subscription::subs(option, reqJSON, session, salt);
                 break;
             case 101:
+                procJSON = login::_login(option, reqJSON, session, salt);
                 break;
             case 102:
                 break;
