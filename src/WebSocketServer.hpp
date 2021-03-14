@@ -27,6 +27,8 @@
 #include <Poco/AsyncChannel.h>
 #include <Poco/PatternFormatter.h>
 #include <Poco/FormattingChannel.h>
+#include <stdlib.h>
+#include <time.h>
 
 
 class WebSocketServer: public Poco::Util::ServerApplication

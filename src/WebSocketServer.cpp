@@ -53,6 +53,7 @@ void WebSocketServer::initialize(Application &self)
 #else
     self.logger().setLevel(Poco::Message::PRIO_INFORMATION);
 #endif
+    srand((unsigned int)time(NULL));
 }
 
 void WebSocketServer::uninitialize()
