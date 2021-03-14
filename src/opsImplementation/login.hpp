@@ -25,6 +25,9 @@
 
 #include "subscription.hpp"
 
+#include <Poco/UUIDGenerator.h>
+#include <Poco/Tuple.h>
+
 class login{
     public:
         static Poco::JSON::Object::Ptr _login(unsigned int op, Poco::JSON::Object::Ptr req, Poco::Data::Session &session, std::string salt);
