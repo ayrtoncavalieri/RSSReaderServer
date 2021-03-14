@@ -37,16 +37,10 @@ Poco::JSON::Object::Ptr login::_login(unsigned int op, Poco::JSON::Object::Ptr r
         */
         typedef Poco::Tuple<std::string, std::string, std::string, std::string, std::string, std::string, std::string> QUser;
         QUser _user;
-#ifdef DEBUG
-        std::cout << "Login procedure started\n";
-#endif
         session << "SELECT email, userName, userPassword, rSalt, settings, othersInfo, linkPhoto FROM rssreader.users WHERE email=?", into(_user), use(email), now;
         if(_user.get<0>().empty()){
                 return commonOps::erroOpJSON(op, "wrong_credentials");
         }
-#ifdef DEBUG
-        std::cout << _user.get<0>().substr(0, 2) << std::endl;
-#endif
         std::string password = req->getValue<std::string>("password");
         password = commonOps::passwordCalc(password, salt, _user.get<3>());
         if(_user.get<2>().compare(password) != 0){
@@ -57,9 +51,6 @@ Poco::JSON::Object::Ptr login::_login(unsigned int op, Poco::JSON::Object::Ptr r
         session << "INSERT INTO `rssreader`.`navigators` (`email`, `uuid`) VALUES (?, ?)", use(email), use(uuid), now;
         unsigned int qtdLinks;
         session << "SELECT COUNT(*) FROM rssreader.links WHERE email=?", into(qtdLinks), use(email), now;
-#ifdef DEBUG
-        std::cout << "Inserted UUID and counted links\n";
-#endif
         reqResp = new Poco::JSON::Object;
         reqResp->set("login", "server");
         reqResp->set("email", email);
