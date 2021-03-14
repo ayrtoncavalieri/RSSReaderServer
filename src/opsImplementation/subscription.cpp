@@ -91,6 +91,7 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             unsigned int qtdUsers;
             session << "SELECT COUNT(*) FROM rssreader.users WHERE email=?", into(qtdUsers), use(email), now; 
             std::string userSettings = "";
+            std::string loginType = "";
             if(idGoogle.empty() && qtdUsers == 0){
                 session << "INSERT INTO `rssreader`.`users` (`email`, `emailConfirmed`, `userName`, `idGoogle`, `othersInfo`, `linkPhoto`) VALUES (?, ?, ?, ?, '{}', ?)", 
                             use(email), use(emailVerified), use(name), use(sub), use(picLink), now;
@@ -100,6 +101,7 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             }else{
                 if(qtdUsers != 0){
                     session << "UPDATE `rssreader`.`users` SET `idGoogle` = ? WHERE (`email` = ?)", use(sub), use(email), now;
+                    loginType = "server, ";
                 }
                 session << "SELECT email, linkPhoto, userName, settings FROM rssreader.users WHERE idGoogle=?", 
                             into(email), into(picLink), into(name), into(userSettings), use(sub), now;
@@ -112,7 +114,8 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             unsigned int qtdLinks;
             session << "SELECT COUNT(*) FROM rssreader.links WHERE email=?", into(qtdLinks), use(email), now;
             reqResp = new Poco::JSON::Object;
-            reqResp->set("login", "provider");
+            loginType += "provider";
+            reqResp->set("login", loginType);
             reqResp->set("email", email);
             reqResp->set("uuid", uuid);
             reqResp->set("feeds", qtdLinks);
