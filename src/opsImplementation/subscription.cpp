@@ -123,7 +123,6 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             }
         }else{
             Poco::UUIDGenerator uuidGen;
-            std::string uuid = uuidGen.createRandom().toString();
 
             email = req->getValue<std::string>("email");
             unsigned int qtdUsers;
@@ -131,6 +130,7 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             if(qtdUsers != 0){
                 return commonOps::erroOpJSON(op, "user_already_exists");
             }
+            std::string uuid = uuidGen.createRandom().toString();
             name = req->getValue<std::string>("name");
             std::string password = req->getValue<std::string>("password");
             std::string rSalt = commonOps::genRsalt(16);
