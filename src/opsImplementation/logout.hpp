@@ -5,7 +5,6 @@
 #include "../PocoData.hpp"
 #include "../commonOps.hpp"
 
-#include <Poco/UTF8String.h>
 
 class logout{
     public:

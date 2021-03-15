@@ -8,10 +8,7 @@ Poco::JSON::Object::Ptr logout::_logout(unsigned int op, Poco::JSON::Object::Ptr
     try{
         email = req->getValue<std::string>("email");
         std::string uuid = req->getValue<std::string>("uuid");
-        Poco::toLowerInPlace(uuid);
-        std::cout << "DELETING\n";
-        session << "DELETE FROM `rssreader`.`navigators` WHERE (`email` = '?') and (`uuid` = '?')", use(email), use(uuid), now;
-        std::cout << "DELETED\n";
+        session << "DELETE FROM `rssreader`.`navigators` WHERE (`email` = ?) and (`uuid` = ?)", use(email), use(uuid), now;
         reqResp = new Poco::JSON::Object;
         reqResp->set("status", "OK");
     }catch(...){
