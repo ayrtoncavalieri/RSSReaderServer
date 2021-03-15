@@ -20,5 +20,6 @@
 
 #include "opsImplementation/subscription.hpp"
 #include "opsImplementation/login.hpp"
+#include "opsImplementation/logout.hpp"
 
 #endif

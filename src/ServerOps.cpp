@@ -52,6 +52,7 @@ std::string ServerOps::processReq(std::string &req)
                 102 - Confirmar e-mail
                 103 - Alterar senha
                 104 - Alterar dados 
+                105 - Logout -> Retornar nada
                 112 - Adicionar link
                 113 - Listar os links
                 114 - Pesquisar links
@@ -70,6 +71,9 @@ std::string ServerOps::processReq(std::string &req)
             case 103:
                 break;
             case 104:
+                break;
+            case 105:
+                procJSON = logout::_logout(option, reqJSON, session, salt);
                 break;
             case 112:
                 break;
