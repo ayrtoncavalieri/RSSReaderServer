@@ -32,15 +32,15 @@ void WebSocketServer::initialize(Application &self)
     loadConfiguration(); // load default configuration files, if present
     ServerApplication::initialize(self);
     Poco::AutoPtr<Poco::FileChannel> fCh(new Poco::FileChannel);
-#ifndef DEBUG
+#ifdef DEBUG
+    fCh->setProperty("path", "RSSReaderServer.debug.log");
+#else
     fCh->setProperty("path", "RSSReaderServer.log");
     fCh->setProperty("rotation", "daily");
     fCh->setProperty("archive", "timestamp");
     fCh->setProperty("times", "local");
     fCh->setProperty("compress", "true");
     fCh->setProperty("purgeAge", "6 months");
-#else
-    fCh->setProperty("path", "RSSReaderServer.debug.log");
 #endif
     Poco::AutoPtr<Poco::PatternFormatter> formatter(new Poco::PatternFormatter);
     formatter->setProperty("times", "local");
