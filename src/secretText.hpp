@@ -25,6 +25,7 @@ class secretText{
     static std::string internSalt();
     static std::string audVal();
     static std::string dbConnectionParams();
+    static std::string noReplyEmailPassword();
 };
 
 #endif

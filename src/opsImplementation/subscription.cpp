@@ -17,12 +17,33 @@
 
 #include "subscription.hpp"
 
+Poco::Net::MailMessage& subscription::composeConfirmationEmail(std::string clientEmail, std::string clientAuthID)
+{
+    Poco::Net::MailMessage mailMessage;
+
+    std::string emailMessage = "<html>  <head>     <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">     <link         href=\"https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap\"         rel=\"stylesheet\" />     <style>         body {             font-family: 'Roboto', sans-serif;             width: 60%;             margin: auto;         }          @media only screen and (max-width: 900px) {             body {                 width: 100%;             }         }     </style> </head>  <body>     <p style=\"text-align: center; padding: 16px;\"><img src=\"https://rssreader.aplikoj.com/assets/images/app_icon.png\"             width=\"40%\" alt=\"RSS Reader Logo\" />     </p>     <h2 style=\"text-align: center;\">Confirm your registration</h2>     <p style=\"text-align: center; padding: 16px;\">         Thank you for signing up for our service, we love your interest and ask you to confirm your email address so we can get in touch when necessary (we promise not to send any unsolicited email).<br />To confirm your email address, please click the button below:     </p>     <p style=\"text-align: center; padding: 16px;\"><a             href=\"https://rssreader.aplikoj.com/#/confirmEmail/confirm?authId={auth}&email={email}\"><img                 src=\"https://rssreader.aplikoj.com/assets/confirm_email.png\" width=\"50%\"                 alt=\"Confirm email button\" /></a>     </p>     <p style=\"text-align: center; padding: 16px;\">         If you have not completed this registration, please contact us through <a href=\"mailto:contato@aplikoj.com\">contato@aplikoj.com</a> so that we can solve.     </p> </body>  </html>";
+
+    mailMessage.addRecipient(Poco::Net::MailRecipient(Poco::Net::MailRecipient::PRIMARY_RECIPIENT, clientEmail));
+    mailMessage.setSubject(Poco::Net::MailMessage::encodeWord("e-mail Confirmation", "UTF-8"));
+    std::string senderName = Poco::Net::MailMessage::encodeWord("RSSReader [Do Not Reply]", "UTF-8");
+    senderName += "<no-reply@rssreader.aplikoj.com>";
+    mailMessage.setSender(senderName);
+    Poco::Net::MediaType mediaType("text/html");
+    mailMessage.setContentType(mediaType);
+    emailMessage.replace(emailMessage.find("{auth}"), 6, clientAuthID);
+    emailMessage.replace(emailMessage.find("{email}"), 7, clientEmail);
+    mailMessage.addPart("", new Poco::Net::StringPartSource(emailMessage, "text/html"), Poco::Net::MailMessage::CONTENT_INLINE, Poco::Net::MailMessage::ENCODING_QUOTED_PRINTABLE);
+
+    return mailMessage;
+}
+
 Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::Ptr req, Poco::Data::Session &session, std::string salt)
 {
     // {nome, email, senha}
     //Com G - {jwt:string}
     Poco::JSON::Object::Ptr reqResp;
-    std::string email, name;
+    std::string email, name, confirmationID;
+    std::string othersInfo;
     try{
         if(req->has("jwt")){ //Google login
             std::string jwt = req->getValue<std::string>("jwt");
@@ -84,6 +105,14 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             name = jwtJSON.getValue<std::string>("name");
             email = jwtJSON.getValue<std::string>("email");
             bool emailVerified = jwtJSON.getValue<bool>("email_verified");
+            if(emailVerified == false){
+                confirmationID = commonOps::genAuthID(128);
+                emailConfirmation::sendEmail(subscription::composeConfirmationEmail(email, confirmationID), "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword());
+                othersInfo = "{\"authID\":";
+                othersInfo += "\"" + confirmationID + "\"}";
+            }else{
+                othersInfo = "{}";
+            }
             std::string picLink = jwtJSON.getValue<std::string>("picture");
             std::string sub = jwtJSON.getValue<std::string>("sub"); //Adicionar no idGoogle
             std::string idGoogle = "";
@@ -93,11 +122,8 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             std::string userSettings = "";
             std::string loginType = "";
             if(idGoogle.empty() && qtdUsers == 0){
-                session << "INSERT INTO `rssreader`.`users` (`email`, `emailConfirmed`, `userName`, `idGoogle`, `othersInfo`, `linkPhoto`) VALUES (?, ?, ?, ?, '{}', ?)", 
-                            use(email), use(emailVerified), use(name), use(sub), use(picLink), now;
-                if(!emailVerified){
-                    //Send confirmation e-mail
-                }
+                session << "INSERT INTO `rssreader`.`users` (`email`, `emailConfirmed`, `userName`, `idGoogle`, `othersInfo`, `linkPhoto`) VALUES (?, ?, ?, ?, ?, ?)", 
+                            use(email), use(emailVerified), use(name), use(sub), use(othersInfo), use(picLink), now;
             }else{
                 if(qtdUsers != 0){
                     session << "UPDATE `rssreader`.`users` SET `idGoogle` = ? WHERE (`email` = ?)", use(sub), use(email), now;
@@ -138,8 +164,12 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             std::string password = req->getValue<std::string>("password");
             std::string rSalt = commonOps::genRsalt(16);
             password = commonOps::passwordCalc(password, salt, rSalt);
-            session << "INSERT INTO `rssreader`.`users` (`email`, `userName`, `userPassword`, rSalt, `othersInfo`, `linkPhoto`) VALUES (?, ?, ?, ?, '{}', '')",
-                        use(email), use(name), use(password), use(rSalt), now;
+            confirmationID = commonOps::genAuthID(128);
+            othersInfo = "{\"authID\":";
+            othersInfo += "\"" + confirmationID + "\"}";
+
+            session << "INSERT INTO `rssreader`.`users` (`email`, `userName`, `userPassword`, rSalt, `othersInfo`, `linkPhoto`) VALUES (?, ?, ?, ?, ?, '')",
+                        use(email), use(name), use(password), use(rSalt), use(othersInfo),now;
             session << "INSERT INTO `rssreader`.`navigators` (`email`, `uuid`) VALUES (?, ?)", use(email), use(uuid), now;
             unsigned int qtdLinks;
 
@@ -150,7 +180,9 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             reqResp->set("feeds", 0);
             reqResp->set("pic", "");
             reqResp->set("name", name);
-            //Enviar e-mail de confirmaçãos
+
+            emailConfirmation::sendEmail(subscription::composeConfirmationEmail(email, confirmationID), "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword());
+            
         }
     }catch(...){
         throw;
