@@ -25,7 +25,7 @@ Poco::Net::MailMessage& subscription::composeConfirmationEmail(std::string clien
 
     mailMessage.addRecipient(Poco::Net::MailRecipient(Poco::Net::MailRecipient::PRIMARY_RECIPIENT, clientEmail));
     mailMessage.setSubject(Poco::Net::MailMessage::encodeWord("e-mail Confirmation", "UTF-8"));
-    std::string senderName = Poco::Net::MailMessage::encodeWord("RSSReader [Do Not Reply]", "UTF-8");
+    std::string senderName = Poco::Net::MailMessage::encodeWord("RSS Reader [Do Not Reply]", "UTF-8");
     senderName += "<no-reply@rssreader.aplikoj.com>";
     mailMessage.setSender(senderName);
     Poco::Net::MediaType mediaType("text/html");
