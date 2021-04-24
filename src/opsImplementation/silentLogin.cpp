@@ -29,10 +29,11 @@ Poco::JSON::Object::Ptr silentLogin::login(unsigned int op, Poco::JSON::Object::
         session << "SELECT hashNavigator FROM rssreader.navigators WHERE (`uuid` = ?)", into(hashNavigator), use(uuid), now;
         if(hashNavigator.empty() || hashNavigatorJSON.compare(hashNavigator)){
             reqResp = commonOps::erroOpJSON(op, "wrong_credentials");
+        }else{
+            session << "UPDATE `rssreader`.`navigators` SET `lastAccess` = CURRENT_TIMESTAMP WHERE (`uuid` = ?)", use(uuid), now;
+            reqResp = new Poco::JSON::Object;
+            reqResp->set("status", "OK");
         }
-        session << "UPDATE `rssreader`.`navigators` SET `lastAccess` = CURRENT_TIMESTAMP WHERE (`uuid` = ?)", use(uuid), now;
-        reqResp = new Poco::JSON::Object;
-        reqResp->set("status", "OK");
     }catch(...){
         throw;
     }
