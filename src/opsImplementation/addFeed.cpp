@@ -68,6 +68,9 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
                 Poco::Net::uninitializeSSL();
                 sslInitialized = false;
                 cacheControl = pFeedResp.get("cache-control", maxAgeStr + defaultTimeToLive);
+                if(cacheControl.find(maxAgeStr, 0) == std::string::npos){
+                    cacheControl = maxAgeStr + defaultTimeToLive;
+                }
                 std::string temporary(std::istreambuf_iterator<char>(resp), {});
                 receivedFeed = temporary;
             }else if(!uri.getScheme().compare("http")){
@@ -85,6 +88,9 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
                     return commonOps::erroOpJSON(op, "invalid_address");
                 }
                 cacheControl = pFeedResp.get("cache-control", maxAgeStr + defaultTimeToLive);
+                if(cacheControl.find(maxAgeStr, 0) == std::string::npos){
+                    cacheControl = maxAgeStr + defaultTimeToLive;
+                }
                 std::string temporary(std::istreambuf_iterator<char>(resp), {});
                 receivedFeed = temporary;
             }else{
@@ -104,13 +110,15 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
 #ifdef DEBUG
             commonOps::logMessage("addFeed", "URI to String: " + uri.toString(), Poco::Message::PRIO_DEBUG);
             commonOps::logMessage("addFeed", "Number parsed(max-age): " + numberToParse, Poco::Message::PRIO_DEBUG);
+            commonOps::logMessage("addFeed", "String to parse(cacheControl): " + cacheControl, Poco::Message::PRIO_DEBUG);
 #endif
             unsigned int maxAgeTime;
             if(Poco::NumberParser::tryParseUnsigned(numberToParse, maxAgeTime) == false){
-                return commonOps::erroOpJSON(op, "internal_error");
+                return commonOps::erroOpJSON(op, "parse_error");
             }
-            Poco::Timespan timeToLive(maxAgeTime, 0);
+            Poco::Timespan timeToLive((long)maxAgeTime, (long)0);
             Poco::DateTime expirationDate;
+            expirationDate.makeUTC(-3);
             expirationDate += timeToLive;
             const std::string completeURI(uri.toString());
             std::string val(completeURI);
@@ -120,7 +128,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
         const std::string completeURI(uri.toString());
         std::string val(completeURI);
         feedName = req->getValue<std::string>("feedName");
-        feedCategory = req->getValue<std::string>("feedCategory");
+        feedCategory = req->getValue<std::string>("feedCategories");
         session << "INSERT INTO `rssreader`.`links` (`email`, `link`, `linkName`, `category`) VALUES (?, ?, ?, ?)", 
         use(email), use(val), use(feedName), use(feedCategory), now;
         reqResp = new Poco::JSON::Object;
