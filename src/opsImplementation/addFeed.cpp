@@ -22,6 +22,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
     Poco::JSON::Object::Ptr reqResp;
     std::string receivedFeed, cacheControl;
     const std::string maxAgeStr("max-age=");
+    const std::string defaultTimeToLive("7200");
     bool sslInitialized = false;
     unsigned int linksFound = 0;
     try{
@@ -60,7 +61,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
                 }
                 Poco::Net::uninitializeSSL();
                 sslInitialized = false;
-                cacheControl = pFeedResp.get("cache-control", maxAgeStr + "7200");
+                cacheControl = pFeedResp.get("cache-control", maxAgeStr + defaultTimeToLive);
                 std::string temporary(std::istreambuf_iterator<char>(resp), {});
                 receivedFeed = temporary;
             }else if(!uri.getScheme().compare("http")){
@@ -77,7 +78,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
                     pFeed.abort();
                     return commonOps::erroOpJSON(op, "invalid_address");
                 }
-                cacheControl = pFeedResp.get("cache-control", maxAgeStr + "7200");
+                cacheControl = pFeedResp.get("cache-control", maxAgeStr + defaultTimeToLive);
                 std::string temporary(std::istreambuf_iterator<char>(resp), {});
                 receivedFeed = temporary;
             }else{
