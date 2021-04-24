@@ -50,7 +50,8 @@ Poco::JSON::Object::Ptr login::_login(unsigned int op, Poco::JSON::Object::Ptr r
         }
         Poco::UUIDGenerator uuidGen;
         std::string uuid = uuidGen.createRandom().toString();
-        session << "INSERT INTO `rssreader`.`navigators` (`email`, `uuid`) VALUES (?, ?)", use(email), use(uuid), now;
+        std::string hashNavigator = commonOps::passwordCalc(email, uuid, "");
+        session << "INSERT INTO `rssreader`.`navigators` (`email`, `uuid`, `hashNavigator`) VALUES (?, ?, ?)", use(email), use(uuid), use(hashNavigator), now;
         unsigned int qtdLinks;
         session << "SELECT COUNT(*) FROM rssreader.links WHERE email=?", into(qtdLinks), use(email), now;
         reqResp = new Poco::JSON::Object;
@@ -59,7 +60,7 @@ Poco::JSON::Object::Ptr login::_login(unsigned int op, Poco::JSON::Object::Ptr r
             loginType += ", provider";
         }
         reqResp->set("login", loginType);
-        reqResp->set("email", email);
+        reqResp->set("variable", hashNavigator);
         reqResp->set("uuid", uuid);
         reqResp->set("feeds", qtdLinks);
         reqResp->set("pic", _user.get<6>());
