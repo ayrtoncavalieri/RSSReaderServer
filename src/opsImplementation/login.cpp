@@ -35,10 +35,11 @@ Poco::JSON::Object::Ptr login::_login(unsigned int op, Poco::JSON::Object::Ptr r
             5 - othersInfo (std::string)
             6 - linkPhoto (std::string)
             7 - idGoogle (std::string)
+            8 - emailConfirmed (bool)
         */
-        typedef Poco::Tuple<std::string, std::string, std::string, std::string, std::string, std::string, std::string, std::string> QUser;
+        typedef Poco::Tuple<std::string, std::string, std::string, std::string, std::string, std::string, std::string, std::string, bool> QUser;
         QUser _user;
-        session << "SELECT email, userName, userPassword, rSalt, settings, othersInfo, linkPhoto, idGoogle FROM rssreader.users WHERE email=?", into(_user), use(email), now;
+        session << "SELECT email, userName, userPassword, rSalt, settings, othersInfo, linkPhoto, idGoogle, emailConfirmed FROM rssreader.users WHERE email=?", into(_user), use(email), now;
         if(_user.get<0>().empty()){
                 return commonOps::erroOpJSON(op, "wrong_credentials");
         }
@@ -63,6 +64,7 @@ Poco::JSON::Object::Ptr login::_login(unsigned int op, Poco::JSON::Object::Ptr r
         reqResp->set("feeds", qtdLinks);
         reqResp->set("pic", _user.get<6>());
         reqResp->set("name", _user.get<1>());
+        reqResp->set("verified", _user.get<8>());
         if(!_user.get<4>().empty()){
             reqResp->set("settings", _user.get<4>());
         }
