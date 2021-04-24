@@ -118,7 +118,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
             }
             Poco::Timespan timeToLive((long)maxAgeTime, (long)0);
             Poco::DateTime expirationDate;
-            expirationDate.makeUTC(-3);
+            expirationDate.makeLocal(-10800); //-3 * 3600 
             expirationDate += timeToLive;
             const std::string completeURI(uri.toString());
             std::string val(completeURI);
