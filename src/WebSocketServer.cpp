@@ -92,8 +92,7 @@ int WebSocketServer::main(const std::vector<std::string>& args)
 {
     if (_helpRequested){
         displayHelp();
-    }
-    else{
+    }else{
         // get parameters from configuration file
         unsigned short port = (unsigned short) config().getInt("WebSocketServer.port", 43880);
         ThreadPool pool(128, 256, 60, POCO_THREAD_STACK_SIZE);
