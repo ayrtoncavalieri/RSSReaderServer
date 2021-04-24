@@ -25,7 +25,12 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
     const std::string defaultTimeToLive("7200");
     bool sslInitialized = false;
     unsigned int linksFound = 0;
+    std::string feedName, feedCategory, email, uuid;
     try{
+        reqResp = silentLogin::login(op, req, session, salt);
+        if(reqResp->has("error")){
+            return reqResp;
+        }
         session << "SELECT COUNT(?) FROM rssreader.linkCache", into(linksFound), now;
         if(linksFound == 0){
             std::string address(req->getValue<std::string>("feedAddress"));

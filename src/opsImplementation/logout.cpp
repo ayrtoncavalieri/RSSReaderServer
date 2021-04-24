@@ -23,8 +23,12 @@ Poco::JSON::Object::Ptr logout::_logout(unsigned int op, Poco::JSON::Object::Ptr
     std::string email;
 
     try{
-        email = req->getValue<std::string>("email");
+        reqResp = silentLogin::login(op, req, session, salt);
+        if(reqResp->has("error")){
+            return reqResp;
+        }
         std::string uuid = req->getValue<std::string>("uuid");
+        session << "SELECT email FROM rssreader.navigators WHERE (`uuid` = ?)", into(email), use(uuid), now;
         session << "DELETE FROM `rssreader`.`navigators` WHERE (`email` = ?) and (`uuid` = ?)", use(email), use(uuid), now;
         reqResp = new Poco::JSON::Object;
         reqResp->set("status", "OK");

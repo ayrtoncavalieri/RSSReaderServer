@@ -4,6 +4,7 @@
 #include "../PocoInclude.hpp"
 #include "../PocoData.hpp"
 #include "../commonOps.hpp"
+#include "silentLogin.hpp"
 
 class logout{
     public:

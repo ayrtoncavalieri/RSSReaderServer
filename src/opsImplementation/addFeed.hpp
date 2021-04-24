@@ -22,6 +22,7 @@
 #include "../PocoData.hpp"
 #include "../commonOps.hpp"
 #include "../secretText.hpp"
+#include "silentLogin.hpp"
 
 #include <Poco/NumberParser.h>
 #include <Poco/NumberFormatter.h>
