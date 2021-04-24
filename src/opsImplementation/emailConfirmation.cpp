@@ -19,7 +19,7 @@
 
 bool emailConfirmation::sendEmail(Poco::Net::MailMessage &message, std::string senderEmail, std::string senderPass)
 {
-    Poco::Net::SecureSMTPClientSession emailS("mail.rssreader.aplikoj.com", 587);
+    Poco::Net::SecureSMTPClientSession emailS("rssreader.aplikoj.com", 587);
     emailS.open();
     Poco::Net::initializeSSL();
 
@@ -37,6 +37,7 @@ bool emailConfirmation::sendEmail(Poco::Net::MailMessage &message, std::string s
         }else{
             emailS.close();
             Poco::Net::uninitializeSSL();
+            commonOps::logMessage("emailConfirmation", "TLS_Failed", Poco::Message::Priority::PRIO_ERROR);
             return false;
         }
     }catch(Poco::Net::SSLException &e){
