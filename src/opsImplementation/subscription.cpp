@@ -102,14 +102,6 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             name = jwtJSON.getValue<std::string>("name");
             email = jwtJSON.getValue<std::string>("email");
             bool emailVerified = jwtJSON.getValue<bool>("email_verified");
-            if(emailVerified == false){
-                confirmationID = commonOps::genAuthID(128);
-                emailConfirmation::sendEmail(mailMessage, "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword());
-                othersInfo = "{\"authID\":";
-                othersInfo += "\"" + confirmationID + "\"}";
-            }else{
-                othersInfo = "{}";
-            }
             std::string picLink = jwtJSON.getValue<std::string>("picture");
             std::string sub = jwtJSON.getValue<std::string>("sub"); //Adicionar no idGoogle
             std::string idGoogle = "";
@@ -121,29 +113,38 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             if(idGoogle.empty() && qtdUsers == 0){
                 session << "INSERT INTO `rssreader`.`users` (`email`, `emailConfirmed`, `userName`, `idGoogle`, `othersInfo`, `linkPhoto`) VALUES (?, ?, ?, ?, ?, ?)", 
                             use(email), use(emailVerified), use(name), use(sub), use(othersInfo), use(picLink), now;
+                if(emailVerified == false){
+                    confirmationID = commonOps::genAuthID(128);
+                    emailConfirmation::sendEmail(mailMessage, "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword());
+                    othersInfo = "{\"authID\":";
+                    othersInfo += "\"" + confirmationID + "\"}";
+                }else{
+                    othersInfo = "{}";
+                }
             }else{
                 if(qtdUsers != 0){
                     session << "UPDATE `rssreader`.`users` SET `idGoogle` = ? WHERE (`email` = ?)", use(sub), use(email), now;
                     loginType = "server, ";
                 }
-                session << "SELECT email, linkPhoto, userName, settings FROM rssreader.users WHERE idGoogle=?", 
-                            into(email), into(picLink), into(name), into(userSettings), use(sub), now;
+                session << "SELECT email, linkPhoto, userName, settings, emailConfirmed FROM rssreader.users WHERE idGoogle=?", 
+                            into(email), into(picLink), into(name), into(userSettings), into(emailVerified), use(sub), now;
             }
 
             Poco::UUIDGenerator uuidGen;
             std::string uuid = uuidGen.createRandom().toString();
-            
-            session << "INSERT INTO `rssreader`.`navigators` (`email`, `uuid`) VALUES (?, ?)", use(email), use(uuid), now;
+            std::string hashNavigator = commonOps::passwordCalc(email, uuid, "");
+            session << "INSERT INTO `rssreader`.`navigators` (`email`, `uuid`, `hashNavigator`) VALUES (?, ?, ?)", use(email), use(uuid), use(hashNavigator), now;
             unsigned int qtdLinks;
             session << "SELECT COUNT(*) FROM rssreader.links WHERE email=?", into(qtdLinks), use(email), now;
             reqResp = new Poco::JSON::Object;
             loginType += "provider";
             reqResp->set("login", loginType);
-            reqResp->set("email", email);
+            reqResp->set("variable", hashNavigator);
             reqResp->set("uuid", uuid);
             reqResp->set("feeds", qtdLinks);
             reqResp->set("pic", picLink);
             reqResp->set("name", name);
+            reqResp->set("verified", emailVerified);
             if(!userSettings.empty()){
                 reqResp->set("settings", userSettings);
             }
@@ -167,16 +168,18 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
 
             session << "INSERT INTO `rssreader`.`users` (`email`, `userName`, `userPassword`, rSalt, `othersInfo`, `linkPhoto`) VALUES (?, ?, ?, ?, ?, '')",
                         use(email), use(name), use(password), use(rSalt), use(othersInfo),now;
-            session << "INSERT INTO `rssreader`.`navigators` (`email`, `uuid`) VALUES (?, ?)", use(email), use(uuid), now;
+            std::string hashNavigator = commonOps::passwordCalc(email, uuid, "");
+            session << "INSERT INTO `rssreader`.`navigators` (`email`, `uuid`, `hashNavigator`) VALUES (?, ?, ?)", use(email), use(uuid), use(hashNavigator), now;
             unsigned int qtdLinks;
 
             reqResp = new Poco::JSON::Object;
             reqResp->set("login", "server");
-            reqResp->set("email", email);
+            reqResp->set("variable", hashNavigator);
             reqResp->set("uuid", uuid);
             reqResp->set("feeds", 0);
             reqResp->set("pic", "");
             reqResp->set("name", name);
+            reqResp->set("verified", false);
 
             emailConfirmation::sendEmail(mailMessage, "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword());
             
