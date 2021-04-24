@@ -17,10 +17,8 @@
 
 #include "subscription.hpp"
 
-Poco::Net::MailMessage& subscription::composeConfirmationEmail(std::string clientEmail, std::string clientAuthID)
+void subscription::composeConfirmationEmail(Poco::Net::MailMessage &mailMessage, std::string clientEmail, std::string clientAuthID)
 {
-    Poco::Net::MailMessage mailMessage;
-
     std::string emailMessage = "<html>  <head>     <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">     <link         href=\"https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap\"         rel=\"stylesheet\" />     <style>         body {             font-family: 'Roboto', sans-serif;             width: 60%;             margin: auto;         }          @media only screen and (max-width: 900px) {             body {                 width: 100%;             }         }     </style> </head>  <body>     <p style=\"text-align: center; padding: 16px;\"><img src=\"https://rssreader.aplikoj.com/assets/images/app_icon.png\"             width=\"40%\" alt=\"RSS Reader Logo\" />     </p>     <h2 style=\"text-align: center;\">Confirm your registration</h2>     <p style=\"text-align: center; padding: 16px;\">         Thank you for signing up for our service, we love your interest and ask you to confirm your email address so we can get in touch when necessary (we promise not to send any unsolicited email).<br />To confirm your email address, please click the button below:     </p>     <p style=\"text-align: center; padding: 16px;\"><a             href=\"https://rssreader.aplikoj.com/#/confirmEmail/confirm?authId={auth}&email={email}\"><img                 src=\"https://rssreader.aplikoj.com/assets/images/confirm_email.png\" width=\"50%\"                 alt=\"Confirm email button\" /></a>     </p>     <p style=\"text-align: center; padding: 16px;\">         If you have not completed this registration, please contact us through <a href=\"mailto:contato@aplikoj.com\">contato@aplikoj.com</a> so that we can solve.     </p> </body>  </html>";
 
     mailMessage.addRecipient(Poco::Net::MailRecipient(Poco::Net::MailRecipient::PRIMARY_RECIPIENT, clientEmail));
@@ -33,8 +31,6 @@ Poco::Net::MailMessage& subscription::composeConfirmationEmail(std::string clien
     emailMessage.replace(emailMessage.find("{auth}"), 6, clientAuthID);
     emailMessage.replace(emailMessage.find("{email}"), 7, clientEmail);
     mailMessage.addPart("", new Poco::Net::StringPartSource(emailMessage, "text/html"), Poco::Net::MailMessage::CONTENT_INLINE, Poco::Net::MailMessage::ENCODING_QUOTED_PRINTABLE);
-
-    return mailMessage;
 }
 
 Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::Ptr req, Poco::Data::Session &session, std::string salt)
@@ -44,6 +40,7 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
     Poco::JSON::Object::Ptr reqResp;
     std::string email, name, confirmationID;
     std::string othersInfo;
+    Poco::Net::MailMessage mailMessage;
     try{
         if(req->has("jwt")){ //Google login
             std::string jwt = req->getValue<std::string>("jwt");
@@ -57,7 +54,7 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
                     9,
                     true,
                     "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
-            Poco::Net::HTTPSClientSession googleJWT("www.googleapis.com", 443, pContext);
+            Poco::Net::HTTPSClientSession googleJWT("www.googleapis.com", Poco::Net::HTTPSClientSession::HTTPS_PORT, pContext);
             Poco::Net::HTTPRequest googleJWTReq(Poco::Net::HTTPRequest::HTTP_GET, "/oauth2/v1/certs", Poco::Net::HTTPMessage::HTTP_1_1);
             googleJWT.sendRequest(googleJWTReq);
             Poco::Net::HTTPResponse googleJWTResp;
@@ -107,7 +104,7 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             bool emailVerified = jwtJSON.getValue<bool>("email_verified");
             if(emailVerified == false){
                 confirmationID = commonOps::genAuthID(128);
-                emailConfirmation::sendEmail(subscription::composeConfirmationEmail(email, confirmationID), "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword());
+                emailConfirmation::sendEmail(mailMessage, "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword());
                 othersInfo = "{\"authID\":";
                 othersInfo += "\"" + confirmationID + "\"}";
             }else{
@@ -181,7 +178,7 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             reqResp->set("pic", "");
             reqResp->set("name", name);
 
-            emailConfirmation::sendEmail(subscription::composeConfirmationEmail(email, confirmationID), "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword());
+            emailConfirmation::sendEmail(mailMessage, "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword());
             
         }
     }catch(...){
