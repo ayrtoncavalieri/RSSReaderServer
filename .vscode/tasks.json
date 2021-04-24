@@ -24,7 +24,8 @@
                 "-lPocoData",
                 "-lPocoDataMySQL",
                 "-lPocoJSON",
-                "-lPocoJWT"
+                "-lPocoJWT",
+                "-lPocoXML"
             ],
             "options": {
                 "cwd": "/usr/bin"
