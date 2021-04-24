@@ -31,10 +31,11 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
         if(reqResp->has("error")){
             return reqResp;
         }
+        uuid = req->getValue<std::string>("uuid");
         session << "SELECT COUNT(?) FROM rssreader.linkCache", into(linksFound), now;
+        std::string address(req->getValue<std::string>("feedAddress"));
+        Poco::URI uri(address);
         if(linksFound == 0){
-            std::string address(req->getValue<std::string>("feedAddress"));
-            Poco::URI uri(address);
             if(uri.getScheme().empty()){
                 uri.setScheme("https");
             }
@@ -115,6 +116,13 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
             std::string val(completeURI);
             session << "INSERT INTO `rssreader`.`linkCache` (`link`, `content`, `expirationDate`) VALUES (?, ?, ?);", use(val), use(receivedFeed), use(expirationDate), now;
         }
+        session << "SELECT email FROM rssreader.navigators WHERE (uuid = ?)", into(email), use(uuid), now;
+        const std::string completeURI(uri.toString());
+        std::string val(completeURI);
+        feedName = req->getValue<std::string>("feedName");
+        feedCategory = req->getValue<std::string>("feedCategory");
+        session << "INSERT INTO `rssreader`.`links` (`email`, `link`, `linkName`, `category`) VALUES (?, ?, ?, ?)", 
+        use(email), use(val), use(feedName), use(feedCategory), now;
         reqResp = new Poco::JSON::Object;
         reqResp->set("status", "OK");
     }catch(Poco::URISyntaxException &e){
