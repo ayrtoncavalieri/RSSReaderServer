@@ -115,9 +115,10 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
                             use(email), use(emailVerified), use(name), use(sub), use(othersInfo), use(picLink), now;
                 if(emailVerified == false){
                     confirmationID = commonOps::genAuthID(128);
-                    emailConfirmation::sendEmail(mailMessage, "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword());
                     othersInfo = "{\"authID\":";
                     othersInfo += "\"" + confirmationID + "\"}";
+                    subscription::composeConfirmationEmail(mailMessage, email, confirmationID);
+                    emailConfirmation::sendEmail(mailMessage, "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword());
                 }else{
                     othersInfo = "{}";
                 }
@@ -181,6 +182,7 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             reqResp->set("name", name);
             reqResp->set("verified", false);
 
+            subscription::composeConfirmationEmail(mailMessage, email, confirmationID);
             emailConfirmation::sendEmail(mailMessage, "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword());
             
         }
