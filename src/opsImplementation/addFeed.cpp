@@ -32,7 +32,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
             return reqResp;
         }
         uuid = req->getValue<std::string>("uuid");
-        session << "SELECT COUNT(?) FROM rssreader.linkCache", into(linksFound), now;
+        session << "SELECT COUNT(*) FROM rssreader.linkCache", into(linksFound), now;
         std::string address(req->getValue<std::string>("feedAddress"));
         Poco::URI uri(address);
         if(linksFound == 0){
