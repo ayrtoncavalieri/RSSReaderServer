@@ -43,12 +43,12 @@ bool emailConfirmation::sendEmail(Poco::Net::MailMessage &message, std::string s
     }catch(Poco::Net::SSLException &e){
         emailS.close();
         Poco::Net::uninitializeSSL();
-        commonOps::logMessage("emailConfirmation", "SSLException", Poco::Message::Priority::PRIO_ERROR);
+        commonOps::logMessage("emailConfirmation", "SSLException" + e.message(), Poco::Message::Priority::PRIO_ERROR);
         return false;
     }catch(Poco::Net::SMTPException &e){
         emailS.close();
         Poco::Net::uninitializeSSL();
-        commonOps::logMessage("emailConfirmation", "SMTPException", Poco::Message::Priority::PRIO_ERROR);
+        commonOps::logMessage("emailConfirmation", "SMTPException -> " + e.message(), Poco::Message::Priority::PRIO_ERROR);
         return false;
     }
 
