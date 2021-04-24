@@ -69,7 +69,7 @@ CREATE TABLE linkCache (
 DELIMITER $$
 CREATE PROCEDURE deleteOldSessions ()
 BEGIN
-	DELETE FROM rssreader.navigators WHERE TIMESTAMP(lastAccess) < NOW() - 604800;
+	DELETE FROM rssreader.navigators WHERE TIMESTAMP(lastAccess) < NOW() - 604800; -- 604800 is 7 days in seconds
 END $$
 DELIMITER ;
 
