@@ -124,7 +124,9 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
             commonOps::logMessage("addFeed", "expirationDate + timeToLive: " + Poco::DateTimeFormatter::format(expirationDate, "%dd %H:%M:%S.%i"), Poco::Message::PRIO_DEBUG);
             const std::string completeURI(uri.toString());
             std::string val(completeURI);
-            session << "INSERT INTO `rssreader`.`linkCache` (`link`, `content`, `expirationDate`) VALUES (?, ?, ?);", use(val), use(receivedFeed), use(expirationDate), now;
+            std::string expDateString = Poco::DateTimeFormatter::format(expirationDate, "%Y-%m-%d %H:%M:%S");
+            session << "INSERT INTO `rssreader`.`linkCache` (`link`, `content`, `expirationDate`) VALUES (?, ?, ?);", 
+            use(val), use(receivedFeed), use(expDateString), now;
         }
         session << "SELECT email FROM rssreader.navigators WHERE (uuid = ?)", into(email), use(uuid), now;
         const std::string completeURI(uri.toString());
