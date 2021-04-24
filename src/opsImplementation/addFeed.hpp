@@ -42,6 +42,7 @@
 #include <Poco/NumberParser.h>
 #include <Poco/Timespan.h>
 #include <Poco/DateTime.h>
+#include <Poco/DateTimeFormatter.h>
 #include <istream>
 #include <time.h>
 

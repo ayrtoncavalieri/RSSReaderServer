@@ -119,7 +119,9 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
             Poco::Timespan timeToLive((long)maxAgeTime, (long)0);
             Poco::DateTime expirationDate;
             expirationDate.makeLocal(-10800); //-3 * 3600 
+            commonOps::logMessage("addFeed", "expirationDate made local: " + Poco::DateTimeFormatter::format(expirationDate, "%dd %H:%M:%S.%i"), Poco::Message::PRIO_DEBUG);
             expirationDate += timeToLive;
+            commonOps::logMessage("addFeed", "expirationDate + timeToLive: " + Poco::DateTimeFormatter::format(expirationDate, "%dd %H:%M:%S.%i"), Poco::Message::PRIO_DEBUG);
             const std::string completeURI(uri.toString());
             std::string val(completeURI);
             session << "INSERT INTO `rssreader`.`linkCache` (`link`, `content`, `expirationDate`) VALUES (?, ?, ?);", use(val), use(receivedFeed), use(expirationDate), now;
