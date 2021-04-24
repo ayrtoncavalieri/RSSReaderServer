@@ -30,9 +30,7 @@ Poco::JSON::Object::Ptr silentLogin::login(unsigned int op, Poco::JSON::Object::
         if(hashNavigator.empty() || hashNavigatorJSON.compare(hashNavigator)){
             reqResp = commonOps::erroOpJSON(op, "wrong_credentials");
         }
-        //UPDATE `rssreader`.`users` SET `idGoogle` = ? WHERE (`email` = ?)
-        Poco::DateTime _now;
-        session << "UPDATE `rssreader`.`navigators` SET `lastAccess` = ? WHERE (`uuid` = ?)", use(_now), use(uuid), now;
+        session << "UPDATE `rssreader`.`navigators` SET `lastAccess` = CURRENT_TIMESTAMP WHERE (`uuid` = ?)", use(uuid), now;
         reqResp = new Poco::JSON::Object;
         reqResp->set("status", "OK");
     }catch(...){
