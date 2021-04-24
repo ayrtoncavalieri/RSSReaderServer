@@ -22,5 +22,6 @@
 #include "opsImplementation/login.hpp"
 #include "opsImplementation/logout.hpp"
 #include "opsImplementation/emailConfirmation.hpp"
+#include "opsImplementation/addFeed.hpp"
 
 #endif
