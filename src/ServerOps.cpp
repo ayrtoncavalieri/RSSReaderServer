@@ -53,12 +53,12 @@ std::string ServerOps::processReq(std::string &req)
                 103 - Alterar senha
                 104 - Alterar dados 
                 105 - Logout -> Retornar nada
-                112 - Adicionar link
-                113 - Listar os links
-                114 - Pesquisar links
-                115 - Recuperar feed
-                116 - Excluir link
                 150 - Excluir usuário
+                301 - Adicionar link
+                302 - Listar os links
+                303 - Pesquisar links
+                304 - Recuperar feed
+                305 - Excluir link
             */
             case 100:
                 procJSON = subscription::subs(option, reqJSON, session, salt);
@@ -75,17 +75,18 @@ std::string ServerOps::processReq(std::string &req)
             case 105:
                 procJSON = logout::_logout(option, reqJSON, session, salt);
                 break;
-            case 112:
-                break;
-            case 113:
-                break;
-            case 114:
-                break;
-            case 115:
-                break;
-            case 116:
-                break;
             case 150:
+                break;
+            case 301:
+                procJSON = addFeed::add(option, reqJSON, session, salt);
+                break;
+            case 302:
+                break;
+            case 303:
+                break;
+            case 304:
+                break;
+            case 305:
                 break;
             default:
                 std::string reason = "Unknown Option";
