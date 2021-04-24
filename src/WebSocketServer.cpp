@@ -44,7 +44,7 @@ void WebSocketServer::initialize(Application &self)
 #endif
     Poco::AutoPtr<Poco::PatternFormatter> formatter(new Poco::PatternFormatter);
     formatter->setProperty("times", "local");
-    formatter->setProperty("pattern", "%Y-%m-%d %H:%M:%S.%F%z [%s]: [%p] -> %t");
+    formatter->setProperty("pattern", "%Y-%m-%d %H:%M:%S.%F%z [%s]: [%p] -> %t\n");
     Poco::AutoPtr<Poco::FormattingChannel> fChannel(new Poco::FormattingChannel(formatter, fCh));
     Poco::AutoPtr<Poco::AsyncChannel> aCh(new Poco::AsyncChannel(fChannel));
     self.logger().setChannel(aCh);
