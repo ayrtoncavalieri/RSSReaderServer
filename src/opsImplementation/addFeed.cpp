@@ -32,19 +32,17 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
             return reqResp;
         }
         uuid = req->getValue<std::string>("uuid");
-        session << "SELECT COUNT(*) FROM rssreader.linkCache", into(linksFound), now;
         std::string address(req->getValue<std::string>("feedAddress"));
+        if(address.find("://", 0) == std::string::npos){
+            address = "://" + address;
+        }
         Poco::URI uri(address);
+        if(uri.getScheme().empty()){
+            uri.setScheme("https");
+        }
+        std::string endereco = uri.toString();
+        session << "SELECT COUNT(*) FROM rssreader.linkCache WHERE (link = ?)", into(linksFound), use(endereco), now;
         if(linksFound == 0){
-            if(uri.getScheme().empty()){
-                uri.setScheme("https");
-                Poco::JSON::Object::NameList retorno;
-                uri.getPathSegments(retorno);
-                uri.setHost(retorno[0]);
-                std::string pathWoTheRest(uri.getPathEtc());
-                pathWoTheRest.replace(pathWoTheRest.find(retorno[0], 0), retorno[0].length(), "");
-                uri.setPathEtc(pathWoTheRest);
-            }
             if(!uri.getScheme().compare("https")){
                 Poco::Net::initializeSSL();
                 sslInitialized = true;
