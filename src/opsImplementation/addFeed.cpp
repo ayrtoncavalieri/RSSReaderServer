@@ -65,14 +65,14 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
                     Poco::Net::uninitializeSSL();
                     return commonOps::erroOpJSON(op, "invalid_address");
                 }
-                Poco::Net::uninitializeSSL();
-                sslInitialized = false;
                 cacheControl = pFeedResp.get("cache-control", maxAgeStr + defaultTimeToLive);
                 if(cacheControl.find(maxAgeStr, 0) == std::string::npos){
                     cacheControl = maxAgeStr + defaultTimeToLive;
                 }
                 std::string temporary(std::istreambuf_iterator<char>(resp), {});
                 receivedFeed = temporary;
+                Poco::Net::uninitializeSSL();
+                sslInitialized = false;
             }else if(!uri.getScheme().compare("http")){
                 Poco::Net::HTTPClientSession pFeed(uri.getHost(), Poco::Net::HTTPClientSession::HTTP_PORT);
                 Poco::Net::HTTPRequest pFeedReq(Poco::Net::HTTPRequest::HTTP_GET, uri.getPathEtc(), Poco::Net::HTTPMessage::HTTP_1_1);
