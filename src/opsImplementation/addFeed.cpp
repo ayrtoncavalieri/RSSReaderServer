@@ -61,8 +61,12 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
                 pFeed.sendRequest(pFeedReq);
                 Poco::Net::HTTPResponse pFeedResp;
                 std::istream& resp = pFeed.receiveResponse(pFeedResp);
+                commonOps::logMessage("addFeed", "HTTP status = " + Poco::NumberFormatter::format(pFeedResp.getStatus()), Poco::Message::PRIO_DEBUG);
                 if(pFeedResp.getStatus() != Poco::Net::HTTPResponse::HTTP_OK || pFeed.networkException() != NULL){
                     Poco::Net::uninitializeSSL();
+                    if(pFeed.networkException() != NULL){
+                        commonOps::logMessage("addFeed", "networkException: " + pFeed.networkException()->displayText(), Poco::Message::PRIO_DEBUG);
+                    }
                     commonOps::logMessage("addFeed", "HTTP not OK, or networkException", Poco::Message::PRIO_DEBUG);
                     return commonOps::erroOpJSON(op, "not_reacheble");
                 }
