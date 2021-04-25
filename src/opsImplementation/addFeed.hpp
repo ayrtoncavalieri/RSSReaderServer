@@ -43,6 +43,7 @@
 #include <Poco/Timespan.h>
 #include <Poco/DateTime.h>
 #include <Poco/DateTimeFormatter.h>
+#include <Poco/Net/NetException.h>
 #include <istream>
 #include <time.h>
 

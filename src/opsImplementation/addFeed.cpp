@@ -149,6 +149,8 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
         reqResp->set("status", "OK");
     }catch(Poco::URISyntaxException &e){
         return commonOps::erroOpJSON(op, "invalid_address");
+    }catch(Poco::Net::HostNotFoundException &e){
+        return commonOps::erroOpJSON(op, "not_reacheble");
     }catch(Poco::XML::SAXException &e){
         return commonOps::erroOpJSON(op, "not_valid_feed");
     }catch(...){
