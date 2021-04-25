@@ -131,6 +131,12 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
         session << "SELECT email FROM rssreader.navigators WHERE (uuid = ?)", into(email), use(uuid), now;
         const std::string completeURI(uri.toString());
         std::string val(completeURI);
+        unsigned int linkAssociated = 0;
+        session << "SELECT COUNT(*) FROM rssreader.links WHERE (link = ?) AND (email = ?)",
+        into(linkAssociated), use(val), use(email), now;
+        if(linkAssociated != 0){
+            return commonOps::erroOpJSON(op, "duplicate_feed");
+        }
         feedName = req->getValue<std::string>("feedName");
         feedCategory = req->getValue<std::string>("feedCategories");
         session << "INSERT INTO `rssreader`.`links` (`email`, `link`, `linkName`, `category`) VALUES (?, ?, ?, ?)", 
