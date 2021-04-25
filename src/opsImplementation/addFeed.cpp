@@ -41,6 +41,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
             uri.setScheme("https");
         }
         std::string endereco = uri.toString();
+        commonOps::logMessage("addFeed", "endereco = " + endereco, Poco::Message::PRIO_DEBUG);
         session << "SELECT COUNT(*) FROM rssreader.linkCache WHERE (link = ?)", into(linksFound), use(endereco), now;
         if(linksFound == 0){
             if(!uri.getScheme().compare("https")){
@@ -62,6 +63,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
                 std::istream& resp = pFeed.receiveResponse(pFeedResp);
                 if(pFeedResp.getStatus() != Poco::Net::HTTPResponse::HTTP_OK || pFeed.networkException() != NULL){
                     Poco::Net::uninitializeSSL();
+                    commonOps::logMessage("addFeed", "HTTP not OK, or networkException", Poco::Message::PRIO_DEBUG);
                     return commonOps::erroOpJSON(op, "not_reacheble");
                 }
                 if(pFeedResp.getContentType().find("xml") == std::string::npos){
@@ -85,6 +87,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
                 std::istream& resp = pFeed.receiveResponse(pFeedResp);
                 if(pFeedResp.getStatus() != Poco::Net::HTTPResponse::HTTP_OK || pFeed.networkException() != NULL){
                     Poco::Net::uninitializeSSL();
+                    commonOps::logMessage("addFeed", "HTTP not OK, or networkException", Poco::Message::PRIO_DEBUG);
                     return commonOps::erroOpJSON(op, "not_reacheble");
                 }
                 if(pFeedResp.getContentType().find("xml") == std::string::npos){
@@ -150,6 +153,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
     }catch(Poco::URISyntaxException &e){
         return commonOps::erroOpJSON(op, "invalid_address");
     }catch(Poco::Net::HostNotFoundException &e){
+        commonOps::logMessage("addFeed", "HostNotFoundException " + e.message(), Poco::Message::PRIO_DEBUG);
         return commonOps::erroOpJSON(op, "not_reacheble");
     }catch(Poco::XML::SAXException &e){
         return commonOps::erroOpJSON(op, "not_valid_feed");
