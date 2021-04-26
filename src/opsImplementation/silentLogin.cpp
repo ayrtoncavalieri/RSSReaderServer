@@ -32,6 +32,7 @@ Poco::JSON::Object::Ptr silentLogin::login(unsigned int op, Poco::JSON::Object::
         }else{
             session << "UPDATE `rssreader`.`navigators` SET `lastAccess` = CURRENT_TIMESTAMP WHERE (`uuid` = ?)", use(uuid), now;
             reqResp = new Poco::JSON::Object;
+            reqResp->set("operation", op);
             reqResp->set("status", "OK");
         }
     }catch(...){
