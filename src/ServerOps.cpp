@@ -56,7 +56,7 @@ std::string ServerOps::processReq(std::string &req)
                 150 - Excluir usuário
                 301 - Adicionar link
                 302 - Listar os links
-                303 - Pesquisar links
+                303 - Editar links //Nome e categoria
                 304 - Recuperar feed
                 305 - Excluir link
             */
@@ -67,6 +67,7 @@ std::string ServerOps::processReq(std::string &req)
                 procJSON = login::_login(option, reqJSON, session, salt);
                 break;
             case 102:
+                procJSON = emailConfirmation::eConf(option, reqJSON, session, salt);
                 break;
             case 103:
                 break;
@@ -87,6 +88,7 @@ std::string ServerOps::processReq(std::string &req)
             case 304:
                 break;
             case 305:
+                procJSON = delFeed::deleteFeed(option, reqJSON, session, salt);
                 break;
             default:
                 std::string reason = "Unknown Option";

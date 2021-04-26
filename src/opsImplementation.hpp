@@ -23,5 +23,6 @@
 #include "opsImplementation/logout.hpp"
 #include "opsImplementation/emailConfirmation.hpp"
 #include "opsImplementation/addFeed.hpp"
+#include "opsImplementation/deleteFeed.hpp"
 
 #endif
