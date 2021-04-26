@@ -84,6 +84,7 @@ std::string ServerOps::processReq(std::string &req)
             case 302:
                 break;
             case 303:
+                procJSON = updFeed::updateFeed(option, reqJSON, session, salt);
                 break;
             case 304:
                 break;
