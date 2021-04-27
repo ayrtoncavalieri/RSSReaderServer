@@ -89,6 +89,8 @@ void WebSocketServer::displayHelp()
 }
 
 const char* WebSocketServer::name(){
+    ServerApplication::name();
+    
     return "RSSReaderServer";
 }
 
