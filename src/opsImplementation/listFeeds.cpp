@@ -39,11 +39,15 @@ Poco::JSON::Object::Ptr listFeed::_list(unsigned int op, Poco::JSON::Object::Ptr
             session << "SELECT * FROM rssreader.links WHERE (email = ?)", into(retrievedLinks), use(email), now;
             Poco::JSON::Object::Ptr linkInformation;
             Poco::JSON::Array::Ptr linkVector = new Poco::JSON::Array;
+            Poco::JSON::Array::Ptr feedCategories;
+            Poco::JSON::Parser p;
             for(std::vector<LinkData>::iterator item = retrievedLinks.begin(); item < retrievedLinks.end(); item++){
                 linkInformation = new Poco::JSON::Object;
                 linkInformation->set("feedAddress", item->get<1>());
                 linkInformation->set("feedName", item->get<2>());
-                linkInformation->set("feedCategories", item->get<3>());
+                feedCategories = p.parse(item->get<3>()).extract<Poco::JSON::Array::Ptr>();
+                linkInformation->set("feedCategories", feedCategories);
+                p.reset();
                 linkInformation->set("dateAdded", Poco::DateTimeFormatter::format(item->get<4>(), "%Y-%m-%d %H:%M:%S"));
                 linkVector->add(linkInformation);
             }
