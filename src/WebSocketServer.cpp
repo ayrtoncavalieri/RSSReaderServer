@@ -88,6 +88,10 @@ void WebSocketServer::displayHelp()
     helpFormatter.format(std::cout);
 }
 
+const char* WebSocketServer::name(){
+    return "RSSReaderServer";
+}
+
 int WebSocketServer::main(const std::vector<std::string>& args)
 {
     if (_helpRequested){

@@ -35,6 +35,7 @@ class WebSocketServer: public Poco::Util::ServerApplication
 {
     public:
         WebSocketServer();
+        const char* name();
         ~WebSocketServer();
 
     protected:
