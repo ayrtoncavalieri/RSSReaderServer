@@ -28,10 +28,8 @@ Poco::JSON::Object::Ptr delUSR::deleteUSR(unsigned int op, Poco::JSON::Object::P
             return reqResp;
         }
         uuid = req->getValue<std::string>("uuid");
-        if(!req->has("jwt")){
-            session << "SELECT email FROM rssreader.navigators WHERE (uuid = ?)", into(email), use(uuid), now;
-            req->set("email", email);
-        }
+        session << "SELECT email FROM rssreader.navigators WHERE (uuid = ?)", into(email), use(uuid), now;
+        req->set("email", email);
         reqResp = login::_login(op, req, session, salt);
         if(reqResp->has("error")){
             return reqResp;
