@@ -59,13 +59,13 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             googleJWT.sendRequest(googleJWTReq);
             Poco::Net::HTTPResponse googleJWTResp;
             std::istream& resp = googleJWT.receiveResponse(googleJWTResp);
-            Poco::Net::uninitializeSSL();
 
             if(googleJWTResp.getStatus() != Poco::Net::HTTPResponse::HTTP_OK){
                 Poco::JWT::SignatureVerificationException e;
                 throw e; 
             }
             std::string gResponse(std::istreambuf_iterator<char>(resp), {});
+            Poco::Net::uninitializeSSL();
 
             Poco::JSON::Parser p; 
             Poco::JSON::Object::Ptr gJSON = p.parse(gResponse).extract<Poco::JSON::Object::Ptr>();
@@ -125,7 +125,10 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             }else{
                 if(qtdUsers != 0){
                     session << "UPDATE `rssreader`.`users` SET `idGoogle` = ? WHERE (`email` = ?)", use(sub), use(email), now;
-                    loginType = "server, ";
+                    std::string tempPass("");
+                    session << "SELECT userPassword FROM rssreader.users WHERE (email = ?)", into(tempPass), use(email), now;
+                    if(!tempPass.empty())
+                        loginType = "server, ";
                 }
                 session << "SELECT email, linkPhoto, userName, settings, emailConfirmed FROM rssreader.users WHERE idGoogle=?", 
                             into(email), into(picLink), into(name), into(userSettings), into(emailVerified), use(sub), now;
