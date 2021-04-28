@@ -27,7 +27,7 @@ Poco::JSON::Object::Ptr remSessions::removeSes(unsigned int op, Poco::JSON::Obje
         if(!reqResp->has("error")){
             uuid = req->getValue<std::string>("uuid");
             session << "SELECT email FROM rssreader.navigators WHERE (uuid = ?)", into(email), use(uuid), now;
-            session << "DELETE FROM rssreader.navigators WHERE (email == ?) AND (uuid != ?)", use(email), use(uuid), now;            
+            session << "DELETE FROM `rssreader`.`navigators` WHERE (`email` = ?) AND (`uuid` != ?)", use(email), use(uuid), now;            
         }
     }catch(...){
         throw;
