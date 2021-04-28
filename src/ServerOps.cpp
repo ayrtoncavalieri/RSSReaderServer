@@ -55,7 +55,9 @@ std::string ServerOps::processReq(std::string &req)
                 102 - Confirmar e-mail
                 103 - Alterar senha
                 104 - Alterar dados 
-                105 - Logout -> Retornar nada
+                105 - Link pro Google
+                106 - Logout -> Retornar nada
+                107 - Desconectar todas as sessões anteriores
                 150 - Excluir usuário
                 301 - Adicionar link
                 302 - Listar os links
@@ -77,7 +79,11 @@ std::string ServerOps::processReq(std::string &req)
             case 104:
                 break;
             case 105:
+                break;
+            case 106:
                 procJSON = logout::_logout(option, reqJSON, session, salt);
+                break;
+            case 107:
                 break;
             case 150:
                 procJSON = delUSR::deleteUSR(option, reqJSON, session, salt);
