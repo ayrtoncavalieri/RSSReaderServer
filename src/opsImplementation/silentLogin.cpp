@@ -20,7 +20,7 @@
 Poco::JSON::Object::Ptr silentLogin::login(unsigned int op, Poco::JSON::Object::Ptr req, Poco::Data::Session &session, std::string salt)
 {
     Poco::JSON::Object::Ptr reqResp;
-    std::string email, uuid;
+    std::string uuid;
     try{
         uuid = req->getValue<std::string>("uuid");
         std::string hashNavigator, hashNavigatorJSON;
