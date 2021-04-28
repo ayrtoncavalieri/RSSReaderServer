@@ -21,6 +21,7 @@ Poco::JSON::Object::Ptr delUSR::deleteUSR(unsigned int op, Poco::JSON::Object::P
 {
     Poco::JSON::Object::Ptr reqResp;
     std::string uuid, email;
+    const std::string methodName("deleteUser");
     try{
         reqResp = silentLogin::login(op, req, session, salt);
         if(reqResp->has("error")){
@@ -28,6 +29,7 @@ Poco::JSON::Object::Ptr delUSR::deleteUSR(unsigned int op, Poco::JSON::Object::P
         }
         uuid = req->getValue<std::string>("uuid");
         session << "SELECT email FROM rssreader.navigators WHERE (uuid = ?)", into(email), use(uuid), now;
+        commonOps::logMessage(methodName, "email from DB: " + email, Poco::Message::PRIO_DEBUG);
         req->set("email", email);
         reqResp = login::_login(op, req, session, salt);
         if(reqResp->has("error")){

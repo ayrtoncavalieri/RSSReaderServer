@@ -21,8 +21,10 @@ Poco::JSON::Object::Ptr login::_login(unsigned int op, Poco::JSON::Object::Ptr r
 {
     Poco::JSON::Object::Ptr reqResp;
     std::string email;
+    const std::string methodName("login");
     try{
         if(req->has("jwt")){
+            commonOps::logMessage(methodName, "Detected a JWT", Poco::Message::PRIO_DEBUG);
             return subscription::subs(op, req, session, salt);
         }
         email = req->getValue<std::string>("email");
