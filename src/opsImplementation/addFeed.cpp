@@ -68,7 +68,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
                         commonOps::logMessage("addFeed", "networkException: " + pFeed.networkException()->displayText(), Poco::Message::PRIO_DEBUG);
                     }
                     commonOps::logMessage("addFeed", "HTTP not OK, or networkException", Poco::Message::PRIO_DEBUG);
-                    return commonOps::erroOpJSON(op, "not_reacheble");
+                    return commonOps::erroOpJSON(op, "not_reachable");
                 }
                 if(pFeedResp.getContentType().find("xml") == std::string::npos){
                     pFeed.abort();
@@ -92,7 +92,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
                 if(pFeedResp.getStatus() != Poco::Net::HTTPResponse::HTTP_OK || pFeed.networkException() != NULL){
                     Poco::Net::uninitializeSSL();
                     commonOps::logMessage("addFeed", "HTTP not OK, or networkException", Poco::Message::PRIO_DEBUG);
-                    return commonOps::erroOpJSON(op, "not_reacheble");
+                    return commonOps::erroOpJSON(op, "not_reachable");
                 }
                 if(pFeedResp.getContentType().find("xml") == std::string::npos){
                     pFeed.abort();
@@ -157,8 +157,11 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
     }catch(Poco::URISyntaxException &e){
         return commonOps::erroOpJSON(op, "invalid_address");
     }catch(Poco::Net::HostNotFoundException &e){
+        if(sslInitialized == true){
+            Poco::Net::uninitializeSSL();
+        }
         commonOps::logMessage("addFeed", "HostNotFoundException " + e.message(), Poco::Message::PRIO_DEBUG);
-        return commonOps::erroOpJSON(op, "not_reacheble");
+        return commonOps::erroOpJSON(op, "not_reachable");
     }catch(Poco::XML::SAXException &e){
         return commonOps::erroOpJSON(op, "not_valid_feed");
     }catch(...){
