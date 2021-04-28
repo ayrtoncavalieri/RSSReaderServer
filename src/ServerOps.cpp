@@ -88,6 +88,7 @@ std::string ServerOps::processReq(std::string &req)
                 procJSON = updFeed::updateFeed(option, reqJSON, session, salt);
                 break;
             case 304:
+                procJSON = recFeed::recover(option, reqJSON, session, salt);
                 break;
             case 305:
                 procJSON = delFeed::deleteFeed(option, reqJSON, session, salt);

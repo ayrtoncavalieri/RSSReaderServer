@@ -26,5 +26,6 @@
 #include "opsImplementation/deleteFeed.hpp"
 #include "opsImplementation/updateFeed.hpp"
 #include "opsImplementation/listFeeds.hpp"
+#include "opsImplementation/recoverFeed.hpp"
 
 #endif
