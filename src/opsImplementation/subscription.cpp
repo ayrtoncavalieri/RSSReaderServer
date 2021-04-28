@@ -158,6 +158,7 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             if(!userSettings.empty()){
                 reqResp->set("settings", userSettings);
             }
+            commonOps::logMessage("subscription", "Finished Google JWT Procedure", Poco::Message::PRIO_DEBUG);
         }else{
             Poco::UUIDGenerator uuidGen;
 
