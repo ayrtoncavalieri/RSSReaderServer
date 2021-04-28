@@ -15,19 +15,29 @@
     along with RSSReaderServer.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef OPSIMP_H
-#define OPSIMP_H
+#ifndef REMSESHPP
+#define REMSESHPP
 
-#include "opsImplementation/subscription.hpp"
-#include "opsImplementation/login.hpp"
-#include "opsImplementation/logout.hpp"
-#include "opsImplementation/emailConfirmation.hpp"
-#include "opsImplementation/addFeed.hpp"
-#include "opsImplementation/deleteFeed.hpp"
-#include "opsImplementation/updateFeed.hpp"
-#include "opsImplementation/listFeeds.hpp"
-#include "opsImplementation/recoverFeed.hpp"
-#include "opsImplementation/deleteUser.hpp"
-#include "opsImplementation/removeSessions.hpp"
+#include "../PocoInclude.hpp"
+#include "../PocoData.hpp"
+#include "../commonOps.hpp"
+#include "../secretText.hpp"
+#include "silentLogin.hpp"
+
+#include <Poco/NumberParser.h>
+#include <Poco/NumberFormatter.h>
+#include <Poco/Nullable.h>
+#include <Poco/SharedPtr.h>
+#include <Poco/JSON/Parser.h>
+#include <Poco/JSON/Object.h>
+#include <Poco/JSON/Array.h>
+#include <Poco/Dynamic/Var.h>
+#include <istream>
+#include <time.h>
+
+class remSessions{
+    public:
+    static Poco::JSON::Object::Ptr removeSes(unsigned int op, Poco::JSON::Object::Ptr req, Poco::Data::Session &session, std::string salt);
+};
 
 #endif

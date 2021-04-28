@@ -84,6 +84,7 @@ std::string ServerOps::processReq(std::string &req)
                 procJSON = logout::_logout(option, reqJSON, session, salt);
                 break;
             case 107:
+                procJSON = remSessions::removeSes(option, reqJSON, session, salt);
                 break;
             case 150:
                 procJSON = delUSR::deleteUSR(option, reqJSON, session, salt);
