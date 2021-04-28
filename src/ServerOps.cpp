@@ -35,10 +35,12 @@ std::string ServerOps::processReq(std::string &req)
     Poco::JSON::Parser p; //40 bytes
     unsigned int option = 0; //4 bytes
     std::string params = secretText::dbConnectionParams();
+    const std::string methodName("ServerOps::processReq");
     //Process data
     try{
         reqJSON = p.parse(req.substr(3, std::string::npos)).extract<Poco::JSON::Object::Ptr>();
         option = Poco::NumberParser::parseUnsigned(req.substr(0, 3));
+        commonOps::logMessage(methodName, "option: " + req.substr(0, 3), Poco::Message::PRIO_DEBUG);
 
         Poco::Data::MySQL::Connector::registerConnector();
         Poco::Data::Session session("MySQL", params.c_str());
