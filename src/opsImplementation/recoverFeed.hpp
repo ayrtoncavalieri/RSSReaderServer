@@ -36,6 +36,7 @@
 #include <Poco/URI.h>
 #include <Poco/Net/NetException.h>
 #include <Poco/Net/HTTPSClientSession.h>
+#include <Poco/Net/HTTPClientSession.h>
 #include <istream>
 #include <time.h>
 

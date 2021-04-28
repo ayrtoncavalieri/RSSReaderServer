@@ -83,6 +83,22 @@ Poco::JSON::Object::Ptr recFeed::recover(unsigned int op, Poco::JSON::Object::Pt
                     sslInitialized = false;
                 }else{
                     // HTTP connection
+                    Poco::Net::HTTPClientSession pFeed(uri.getHost(), Poco::Net::HTTPClientSession::HTTP_PORT);
+                    Poco::Net::HTTPRequest pFeedReq(Poco::Net::HTTPRequest::HTTP_GET, uri.getPathEtc(), Poco::Net::HTTPMessage::HTTP_1_1);
+                    pFeed.sendRequest(pFeedReq);
+                    Poco::Net::HTTPResponse pFeedResp;
+                    std::istream& resp = pFeed.receiveResponse(pFeedResp);
+                    if(pFeedResp.getStatus() != Poco::Net::HTTPResponse::HTTP_OK || pFeed.networkException() != NULL){
+                        Poco::Net::uninitializeSSL();
+                        commonOps::logMessage("recoverFeed", "HTTP not OK, or networkException", Poco::Message::PRIO_DEBUG);
+                        return commonOps::erroOpJSON(op, "not_reachable");
+                    }
+                    cacheControl = pFeedResp.get("cache-control", maxAgeStr + defaultTimeToLive);
+                    if(cacheControl.find(maxAgeStr, 0) == std::string::npos){
+                        cacheControl = maxAgeStr + defaultTimeToLive;
+                    }
+                    std::string temporary(std::istreambuf_iterator<char>(resp), {});
+                    feedContent = temporary;
                 }
                 std::string numberToParse;
                 for(unsigned int i = maxAgeStr.length() + cacheControl.find(maxAgeStr, 0); i < cacheControl.length() && cacheControl[i] != ','; ++i){
