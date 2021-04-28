@@ -40,8 +40,9 @@ std::string ServerOps::processReq(std::string &req)
     try{
         reqJSON = p.parse(req.substr(3, std::string::npos)).extract<Poco::JSON::Object::Ptr>();
         option = Poco::NumberParser::parseUnsigned(req.substr(0, 3));
+#ifdef DEBUG
         commonOps::logMessage(methodName, "option: " + req.substr(0, 3), Poco::Message::PRIO_DEBUG);
-
+#endif
         Poco::Data::MySQL::Connector::registerConnector();
         Poco::Data::Session session("MySQL", params.c_str());
         //Select option and do something.
