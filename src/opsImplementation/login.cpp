@@ -49,9 +49,13 @@ Poco::JSON::Object::Ptr login::_login(unsigned int op, Poco::JSON::Object::Ptr r
             return commonOps::erroOpJSON(op, "wrong_credentials");
         }
         Poco::UUIDGenerator uuidGen;
-        std::string uuid = uuidGen.createRandom().toString();
-        std::string hashNavigator = commonOps::passwordCalc(email, uuid, "");
-        session << "INSERT INTO `rssreader`.`navigators` (`email`, `uuid`, `hashNavigator`) VALUES (?, ?, ?)", use(email), use(uuid), use(hashNavigator), now;
+        std::string uuid;
+        std::string hashNavigator;
+        if(op == 101){
+            uuid = uuidGen.createRandom().toString();
+            hashNavigator = commonOps::passwordCalc(email, uuid, "");
+            session << "INSERT INTO `rssreader`.`navigators` (`email`, `uuid`, `hashNavigator`) VALUES (?, ?, ?)", use(email), use(uuid), use(hashNavigator), now;
+        }
         unsigned int qtdLinks;
         session << "SELECT COUNT(*) FROM rssreader.links WHERE email=?", into(qtdLinks), use(email), now;
         reqResp = new Poco::JSON::Object;
@@ -60,8 +64,10 @@ Poco::JSON::Object::Ptr login::_login(unsigned int op, Poco::JSON::Object::Ptr r
             loginType += ", provider";
         }
         reqResp->set("login", loginType);
-        reqResp->set("variable", hashNavigator);
-        reqResp->set("uuid", uuid);
+        if(op == 101){
+            reqResp->set("variable", hashNavigator);
+            reqResp->set("uuid", uuid);
+        }
         reqResp->set("feeds", qtdLinks);
         reqResp->set("pic", _user.get<6>());
         reqResp->set("name", _user.get<1>());
