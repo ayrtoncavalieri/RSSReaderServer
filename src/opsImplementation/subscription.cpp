@@ -41,8 +41,10 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
     std::string email, name, confirmationID;
     std::string othersInfo;
     Poco::Net::MailMessage mailMessage;
+    const std::string methodName("subscription");
     try{
         if(req->has("jwt")){ //Google login
+            commonOps::logMessage(methodName, "Entering JWT login", Poco::Message::PRIO_DEBUG);
             std::string jwt = req->getValue<std::string>("jwt");
             Poco::Net::initializeSSL();
             Poco::Net::Context::Ptr pContext = new Poco::Net::Context(
@@ -104,6 +106,7 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             bool emailVerified = jwtJSON.getValue<bool>("email_verified");
             std::string picLink = jwtJSON.getValue<std::string>("picture");
             std::string sub = jwtJSON.getValue<std::string>("sub"); //Adicionar no idGoogle
+            commonOps::logMessage(methodName, "Read all JWT information", Poco::Message::PRIO_DEBUG);
             std::string idGoogle = "";
             session << "SELECT idGoogle FROM rssreader.users WHERE idGoogle=?", into(idGoogle), use(sub), now;
             unsigned int qtdUsers;
