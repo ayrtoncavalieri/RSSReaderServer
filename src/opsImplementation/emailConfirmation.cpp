@@ -118,13 +118,13 @@ Poco::JSON::Object::Ptr emailConfirmation::eConf(unsigned int op, Poco::JSON::Ob
 
                 authIDJSON->stringify(streamg, 0, -1);
                 othersInfo = streamg.str();
-                session << "UPDATE `rssreader`.`users` SET `othersInfo` = ? WHERE (`email` = ?)", use(userEmail), now;
                 
                 Poco::Net::MailMessage message;
                 subscription::composeConfirmationEmail(message, userEmail, authID);
-                if(!emailConfirmation::sendEmail(message, "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword())){
+                if(!emailConfirmation::sendEmail(message, "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword()))
                     commonOps::logMessage(methodName, "Failed to send e-mail confirmation", Poco::Message::PRIO_ERROR);
-                }
+                
+                session << "UPDATE `rssreader`.`users` SET `othersInfo` = ? WHERE (`email` = ?)", use(othersInfo), use(userEmail), now;
             }
         }else{
             reqResp = commonOps::erroOpJSON(op, "exception_empty_confid");
