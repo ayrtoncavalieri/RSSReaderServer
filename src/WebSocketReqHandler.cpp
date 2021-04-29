@@ -91,7 +91,7 @@ void WebSocketRequestHandler::handleRequest(HTTPServerRequest& request, HTTPServ
             msn.setPriority(Poco::Message::PRIO_INFORMATION);
             app.logger().log(msn);
         }else{ //Warning sender that the payload is too big
-            msn.setText("PAYLOAD too big! Content: " + incomeBuf);
+            msn.setText("PAYLOAD too big![1]" + incomeBuf);
             msn.setPriority(Poco::Message::PRIO_INFORMATION);
             app.logger().log(msn);
             msn.setText("Content: " + incomeBuf);
@@ -119,7 +119,7 @@ void WebSocketRequestHandler::handleRequest(HTTPServerRequest& request, HTTPServ
             response.send();
             break;
         case WebSocket::WS_ERR_PAYLOAD_TOO_BIG:
-            msn.setText("PAYLOAD too big!");
+            msn.setText("PAYLOAD too big![2]");
             msn.setPriority(Poco::Message::PRIO_INFORMATION);
             app.logger().log(msn);
             msn.setText("Content: " + incomeBuf);
