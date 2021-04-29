@@ -25,6 +25,7 @@ void WebSocketRequestHandler::handleRequest(HTTPServerRequest& request, HTTPServ
     Timespan timeOut(0, 30 * ONESEC);
     response.set("Sec-WebSocket-Protocol", "PDRAUM");
     WebSocket ws(request, response);
+    std::string incomeBuf;
     try
     {
         ws.setReceiveTimeout(timeOut);
@@ -36,7 +37,6 @@ void WebSocketRequestHandler::handleRequest(HTTPServerRequest& request, HTTPServ
         int flags;
         int n;
         int frames;
-        std::string incomeBuf;
         std::string respJSON;
         frames = 0;
         buffer[BUFSIZE] = '\0';
@@ -94,6 +94,9 @@ void WebSocketRequestHandler::handleRequest(HTTPServerRequest& request, HTTPServ
             msn.setText("PAYLOAD too big! Content: " + incomeBuf);
             msn.setPriority(Poco::Message::PRIO_INFORMATION);
             app.logger().log(msn);
+            msn.setText("Content: " + incomeBuf);
+            msn.setPriority(Poco::Message::PRIO_DEBUG);
+            app.logger().log(msn);
             ws.shutdown(1009, "WS_PAYLOAD_TOO_BIG");
         }
         ws.close();
@@ -118,6 +121,9 @@ void WebSocketRequestHandler::handleRequest(HTTPServerRequest& request, HTTPServ
         case WebSocket::WS_ERR_PAYLOAD_TOO_BIG:
             msn.setText("PAYLOAD too big!");
             msn.setPriority(Poco::Message::PRIO_INFORMATION);
+            app.logger().log(msn);
+            msn.setText("Content: " + incomeBuf);
+            msn.setPriority(Poco::Message::PRIO_DEBUG);
             app.logger().log(msn);
             ws.shutdown(1009, "WS_PAYLOAD_TOO_BIG");
             break;
