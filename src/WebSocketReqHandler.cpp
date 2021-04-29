@@ -64,7 +64,8 @@ void WebSocketRequestHandler::handleRequest(HTTPServerRequest& request, HTTPServ
                 app.logger().log(msn);
                 pingCount++;
                 ws.sendFrame("", 0, flags);
-            }else if(buffer[0] == 0x04 || n == 0){ // Received EOT and ending income
+            }else if(buff.begin()[buff.size() - 1] == 0x04 || n == 0){ // Received EOT and ending income
+                buff.begin()[buff.size() - 1] = '\0';
                 break;
             }else{ // Adding income to buffer
                 frames += n;
