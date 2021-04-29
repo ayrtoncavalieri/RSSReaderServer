@@ -69,6 +69,8 @@ Poco::JSON::Object::Ptr redefPassword::redefine(unsigned int op, Poco::JSON::Obj
                 authIDJSON = p.parse(othersInfo).extract<Poco::JSON::Object::Ptr>();
                 authID = commonOps::genAuthID(128);
                 authIDJSON->set("authID", authID);
+                authIDJSON->stringify(streamg, 0, -1);
+                othersInfo = streamg.str();
                 session << "UPDATE `rssreader`.`users` SET `othersInfo` = ? WHERE (`email` = ?)", use(othersInfo), use(userEmail), now;
                 
                 Poco::Net::MailMessage mailMessage;
