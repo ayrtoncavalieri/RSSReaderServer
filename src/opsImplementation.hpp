@@ -29,5 +29,6 @@
 #include "opsImplementation/recoverFeed.hpp"
 #include "opsImplementation/deleteUser.hpp"
 #include "opsImplementation/removeSessions.hpp"
+#include "opsImplementation/redefinePassword.hpp"
 
 #endif

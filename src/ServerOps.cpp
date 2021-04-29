@@ -75,6 +75,7 @@ std::string ServerOps::processReq(std::string &req)
                 procJSON = emailConfirmation::eConf(option, reqJSON, session, salt);
                 break;
             case 103:
+                procJSON = redefPassword::redefine(option, reqJSON, session, salt);
                 break;
             case 104:
                 break;
