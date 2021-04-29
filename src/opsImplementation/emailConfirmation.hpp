@@ -22,6 +22,8 @@
 #include "../PocoData.hpp"
 #include "../commonOps.hpp"
 #include "../secretText.hpp"
+#include "silentLogin.hpp"
+#include "subscription.hpp"
 
 #include <Poco/NumberParser.h>
 #include <Poco/NumberFormatter.h>
@@ -35,6 +37,7 @@
 #include <Poco/Net/SecureSMTPClientSession.h>
 #include <Poco/Net/AcceptCertificateHandler.h>
 #include <Poco/Net/SSLException.h>
+#include <Poco/Net/MailMessage.h>
 #include <istream>
 #include <time.h>
 

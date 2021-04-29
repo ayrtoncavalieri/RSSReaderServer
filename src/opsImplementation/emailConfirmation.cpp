@@ -59,12 +59,79 @@ bool emailConfirmation::sendEmail(Poco::Net::MailMessage &message, std::string s
 Poco::JSON::Object::Ptr emailConfirmation::eConf(unsigned int op, Poco::JSON::Object::Ptr req, Poco::Data::Session &session, std::string salt)
 {
     Poco::JSON::Object::Ptr reqResp;
+    const std::string methodName("emailConfirmation::eConf");
+    const std::string noAuthIDJSON("no_authId_JSON");
+    std::string othersInfo("");
+    std::string userEmail, authID;
+    std::ostringstream streamg;
+    Poco::JSON::Object::Ptr authIDJSON;
+    Poco::JSON::Parser p;
+    bool confirmed = false;
 
     try{
+        if(req->has("authId")){
+            authID = req->getValue<std::string>("authId");
+            userEmail = req->getValue<std::string>("email");
+
+            unsigned int emailCount = 0;
+            session << "SELECT COUNT(*) FROM rssreader.users WHERE (email = ?)", into(emailCount), use(userEmail), now;
+            if(emailCount == 0){
+                return commonOps::erroOpJSON(op, "user_not_found");
+            }
+            session << "SELECT othersInfo FROM rssreader.users WHERE (email = ?)", into(othersInfo), use(userEmail), now;
+            if(othersInfo.empty()){
+                commonOps::logMessage(methodName, "othersInfo is empty!", Poco::Message::PRIO_ERROR);
+                session << "UPDATE `rssreader`.`users` SET `othersInfo` = '{}' WHERE (`email` = ?)", use(userEmail), now;
+                othersInfo = "{}";
+            }
+            authIDJSON = p.parse(othersInfo).extract<Poco::JSON::Object::Ptr>();
+            if(!authIDJSON->has("authID") || authIDJSON->getValue<std::string>("authID").compare(authID)){
+                return commonOps::erroOpJSON(op, "wrong_confid");
+            }
+            authIDJSON->remove("authID");
+
+            authIDJSON->stringify(streamg, 0, -1);
+            othersInfo = streamg.str();
         
+            confirmed = true;
+            session << "UPDATE `rssreader`.`users` SET `emailConfirmed` = ?, `othersInfo` = ? WHERE (`email` = ?)",
+            use(confirmed), use(othersInfo), use(userEmail), now;
+
+            reqResp = new Poco::JSON::Object;
+            reqResp->set("status", "OK");
+            reqResp->set("op", op);
+        }else if(req->has("variable") && req->has("uuid")){
+            reqResp = silentLogin::login(op, req, session, salt);
+            if(!reqResp->has("error")){
+                std::string uuid = req->getValue<std::string>("uuid");
+                session << "SELECT email FROM rssreader.navigators WHERE (uuid = ?)", 
+                        into(userEmail), use(uuid), now;
+                session << "SELECT othersInfo FROM rssreader.users WHERE (email = ?)", 
+                        into(othersInfo), use(userEmail), now;
+                if(othersInfo.empty()){
+                    commonOps::logMessage(methodName, "othersInfo is empty!", Poco::Message::PRIO_ERROR);
+                    othersInfo = "{}";
+                }
+                authID = commonOps::genAuthID(128);
+                authIDJSON = p.parse(othersInfo).extract<Poco::JSON::Object::Ptr>();
+                authIDJSON->set("authID", authID);
+
+                authIDJSON->stringify(streamg, 0, -1);
+                othersInfo = streamg.str();
+                session << "UPDATE `rssreader`.`users` SET `othersInfo` = ? WHERE (`email` = ?)", use(userEmail), now;
+                
+                Poco::Net::MailMessage message;
+                subscription::composeConfirmationEmail(message, userEmail, authID);
+                if(!emailConfirmation::sendEmail(message, "no-reply@rssreader.aplikoj.com", secretText::noReplyEmailPassword())){
+                    commonOps::logMessage(methodName, "Failed to send e-mail confirmation", Poco::Message::PRIO_ERROR);
+                }
+            }
+        }else{
+            reqResp = commonOps::erroOpJSON(op, "exception_empty_confid");
+        }
     }catch(...){
         throw;
     }
-
+    
     return reqResp;
 }
