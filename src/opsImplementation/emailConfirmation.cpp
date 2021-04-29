@@ -66,7 +66,6 @@ Poco::JSON::Object::Ptr emailConfirmation::eConf(unsigned int op, Poco::JSON::Ob
     std::ostringstream streamg;
     Poco::JSON::Object::Ptr authIDJSON;
     Poco::JSON::Parser p;
-    bool confirmed = false;
 
     try{
         if(req->has("authId")){
@@ -93,9 +92,7 @@ Poco::JSON::Object::Ptr emailConfirmation::eConf(unsigned int op, Poco::JSON::Ob
             authIDJSON->stringify(streamg, 0, -1);
             othersInfo = streamg.str();
         
-            confirmed = true;
-            session << "UPDATE `rssreader`.`users` SET `emailConfirmed` = ?, `othersInfo` = ? WHERE (`email` = ?)",
-            use(confirmed), use(othersInfo), use(userEmail), now;
+            session << "UPDATE `rssreader`.`users` SET `emailConfirmed` = 1, `othersInfo` = ? WHERE (`email` = ?)", use(othersInfo), use(userEmail), now;
 
             reqResp = new Poco::JSON::Object;
             reqResp->set("status", "OK");
