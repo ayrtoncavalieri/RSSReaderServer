@@ -112,8 +112,6 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
             std::string userSettings = "";
             std::string loginType = "";
             if(idGoogle.empty() && qtdUsers == 0){
-                session << "INSERT INTO `rssreader`.`users` (`email`, `emailConfirmed`, `userName`, `idGoogle`, `othersInfo`, `linkPhoto`) VALUES (?, ?, ?, ?, ?, ?)", 
-                            use(email), use(emailVerified), use(name), use(sub), use(othersInfo), use(picLink), now;
                 if(emailVerified == false){
                     confirmationID = commonOps::genAuthID(128);
                     othersInfo = "{\"authID\":";
@@ -123,6 +121,8 @@ Poco::JSON::Object::Ptr subscription::subs(unsigned int op, Poco::JSON::Object::
                 }else{
                     othersInfo = "{}";
                 }
+                session << "INSERT INTO `rssreader`.`users` (`email`, `emailConfirmed`, `userName`, `idGoogle`, `othersInfo`, `linkPhoto`) VALUES (?, ?, ?, ?, ?, ?)", 
+                            use(email), use(emailVerified), use(name), use(sub), use(othersInfo), use(picLink), now;
             }else{
                 if(qtdUsers != 0){
                     session << "UPDATE `rssreader`.`users` SET `idGoogle` = ? WHERE (`email` = ?)", use(sub), use(email), now;
