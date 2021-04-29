@@ -40,11 +40,17 @@ void WebSocketRequestHandler::handleRequest(HTTPServerRequest& request, HTTPServ
         std::string respJSON;
         frames = 0;
         buffer[BUFSIZE] = '\0';
+        Poco::Buffer<char> buff(0);
         //Receive frames
         ws.setMaxPayloadSize(BUFSIZE);
-        while(frames <= MAXFRAMES){
-            memset(buffer, '\0', BUFSIZE);
-            n = ws.receiveFrame(buffer, BUFSIZE, flags);
+        unsigned int pingCount = 0;
+        while(buff.size() <= MAXFRAMES * BUFSIZE){
+            //memset(buffer, '\0', BUFSIZE);
+            std::cout << ws.getReceiveBufferSize() << " bytes[1]\n";
+            //n = ws.receiveFrame(buffer, BUFSIZE, flags);
+            n = ws.receiveFrame(buff, flags);
+            std::cout << "Received " << n << " bytes\n";
+            std::cout << ws.getReceiveBufferSize() << " bytes[2]\n";
             if((flags & WebSocket::FRAME_OP_BITMASK) == WebSocket::FRAME_OP_PING){ // Process PINGS
                 msn.setText(Poco::format("flags & WebSocket::FRAME_OP_BITMASK (flags=0x%x).", unsigned(flags & WebSocket::FRAME_OP_PING)));
                 msn.setPriority(Poco::Message::PRIO_DEBUG);
@@ -56,18 +62,21 @@ void WebSocketRequestHandler::handleRequest(HTTPServerRequest& request, HTTPServ
                 msn.setText(Poco::format("flags = 0x%x", unsigned(flags)));
                 msn.setPriority(Poco::Message::PRIO_DEBUG);
                 app.logger().log(msn);
-                n = 1;
-                ws.sendFrame(buffer, 0, flags);
-            }else if(buffer[0] == 0x04){ // Received EOT and ending income
+                pingCount++;
+                ws.sendFrame("", 0, flags);
+            }else if(buffer[0] == 0x04 || n == 0){ // Received EOT and ending income
                 break;
             }else{ // Adding income to buffer
-                ++frames;
-                incomeBuf += buffer;
+                frames += n;
+            }
+            if(pingCount == MAXPINGS){
+                break;
             }
         }
-        if(frames <= MAXFRAMES){
+        if(n != 0 && frames <= MAXFRAMES * BUFSIZE && pingCount < MAXPINGS){
             //Process requisitions
             ServerOps srv;
+            incomeBuf = buff.begin();
             respJSON = srv.processReq(incomeBuf);
 
             if(respJSON.length() > BUFSIZE){ //Sending a big response
@@ -90,6 +99,8 @@ void WebSocketRequestHandler::handleRequest(HTTPServerRequest& request, HTTPServ
             msn.setText("WebSocket connection closed.");
             msn.setPriority(Poco::Message::PRIO_INFORMATION);
             app.logger().log(msn);
+        }else if(n == 0 || pingCount == MAXPINGS){
+            ws.close();
         }else{ //Warning sender that the payload is too big
             msn.setText("PAYLOAD too big![1]" + incomeBuf);
             msn.setPriority(Poco::Message::PRIO_INFORMATION);

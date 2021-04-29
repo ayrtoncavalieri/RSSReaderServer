@@ -23,9 +23,12 @@
 #include "PocoInclude.hpp"
 #include "ServerOps.hpp"
 
+#include <Poco/Buffer.h>
+
 #define BUFSIZE 65536
 #define MAXFRAMES 160
 #define ONESEC 1000000
+#define MAXPINGS 6
 
 class WebSocketRequestHandler: public HTTPRequestHandler
 {
