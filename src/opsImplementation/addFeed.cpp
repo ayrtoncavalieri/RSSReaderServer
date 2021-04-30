@@ -110,8 +110,11 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
             }else{
                 return commonOps::erroOpJSON(op, "invalid_address");
             }
-            for(unsigned int i = receivedFeed.find(encod, 0) + encod.length() + 1; receivedFeed[i] != '"' && receivedFeed[i] != '\''; i++){
-                encoding += receivedFeed[i];
+            if(receivedFeed.find(encod, 0) == std::string::npos){
+                encoding = "UTF-8";
+            }else{
+                for(unsigned int i = receivedFeed.find(encod, 0) + encod.length() + 1; receivedFeed[i] != '"' && receivedFeed[i] != '\''; i++)                    
+                    encoding += receivedFeed[i];
             }
             Poco::toUpperInPlace(encoding);
             Poco::XML::DOMParser parser;

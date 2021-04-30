@@ -114,8 +114,11 @@ Poco::JSON::Object::Ptr recFeed::recover(unsigned int op, Poco::JSON::Object::Pt
                 _now += timeToLive;
                 std::string expDateString = Poco::DateTimeFormatter::format(_now, "%Y-%m-%d %H:%M:%S");
                 //Insert UTF-8 converter
-                for(unsigned int i = feedContent.find(encod, 0) + encod.length() + 1; feedContent[i] != '"' && feedContent[i] != '\''; i++){
-                    encoding += feedContent[i];
+                if(feedContent.find(encod, 0) == std::string::npos){
+                    encoding = "UTF-8";
+                }else{
+                    for(unsigned int i = feedContent.find(encod, 0) + encod.length() + 1; feedContent[i] != '"' && feedContent[i] != '\''; i++)
+                        encoding += feedContent[i];
                 }
                 commonOps::logMessage("recoverFeed", "Encoding: " + encoding, Poco::Message::PRIO_DEBUG);
                 if(encoding.compare("UTF-8")){
