@@ -59,7 +59,7 @@ CREATE TABLE links (
 
 CREATE TABLE linkCache (
 	link VARCHAR(2048) NOT NULL,
-    content MEDIUMTEXT,
+    content MEDIUMBLOB,
     expirationDate DATETIME,
     PRIMARY KEY (link(768))
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
