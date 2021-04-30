@@ -200,6 +200,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
         use(email), use(val), use(feedName), use(feedCategory), now;
         reqResp = new Poco::JSON::Object;
         reqResp->set("status", "OK");
+        reqResp->set("op", op);
     }catch(Poco::URISyntaxException &e){
         return commonOps::erroOpJSON(op, "invalid_address");
     }catch(Poco::Net::HostNotFoundException &e){
