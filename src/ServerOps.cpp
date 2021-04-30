@@ -48,22 +48,20 @@ std::string ServerOps::processReq(std::string &req)
         //Select option and do something.
         switch(option){
             /*
-                100 - Inscrição de usuário (faz login) -> retorna UUID se for usuário e senha, manda e-mail de confirmação
-                Com Firebase, retornar nada
-                101 - Login -> retorna UUID se for usuário e senha
-                Com Firebase, retornar OK
-                102 - Confirmar e-mail
-                103 - Alterar senha
-                104 - Alterar dados 
-                105 - Link pro Google
-                106 - Logout -> Retornar nada
-                107 - Desconectar todas as sessões anteriores
-                150 - Excluir usuário
-                301 - Adicionar link
-                302 - Listar os links
-                303 - Editar links //Nome e categoria
-                304 - Recuperar feed
-                305 - Excluir link
+                100 - User subscription
+                101 - User Login
+                102 - e-mail Confirmation
+                103 - Change password
+                104 - Change user data
+                105 - Link Google account
+                106 - User logout
+                107 - Logout from other sessions
+                150 - Delete user
+                301 - Add feed
+                302 - List feeds
+                303 - Edit feed (name, category)
+                304 - Retrieve feeds
+                305 - Delete feed
             */
             case 100:
                 procJSON = subscription::subs(option, reqJSON, session, salt);
