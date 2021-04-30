@@ -46,7 +46,6 @@ void WebSocketRequestHandler::handleRequest(HTTPServerRequest& request, HTTPServ
         unsigned int pingCount = 0;
         while(buff.size() <= MAXFRAMES * BUFSIZE){
             //memset(buffer, '\0', BUFSIZE);
-            std::cout << ws.getReceiveBufferSize() << " bytes[1]\n";
             //n = ws.receiveFrame(buffer, BUFSIZE, flags);
             n = ws.receiveFrame(buff, flags);
             if((flags & WebSocket::FRAME_OP_BITMASK) == WebSocket::FRAME_OP_PING){ // Process PINGS
