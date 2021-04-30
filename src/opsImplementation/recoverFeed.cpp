@@ -20,9 +20,11 @@
 Poco::JSON::Object::Ptr recFeed::recover(unsigned int op, Poco::JSON::Object::Ptr req, Poco::Data::Session &session, std::string salt)
 {
     Poco::JSON::Object::Ptr reqResp;
-    std::string email, uuid, feedLink, feedContent("");
+    std::string email, uuid, feedLink, feedContent(""), encoding("");
     const std::string maxAgeStr("max-age=");
     const std::string defaultTimeToLive("7200");
+    const std::string encod("encoding=");
+    iconv_t conversor;
     unsigned int hasLink = 0;
     bool updateCache = false, sslInitialized = false;
 
@@ -111,6 +113,34 @@ Poco::JSON::Object::Ptr recFeed::recover(unsigned int op, Poco::JSON::Object::Pt
                 Poco::Timespan timeToLive((long)maxAgeTime, (long)0);
                 _now += timeToLive;
                 std::string expDateString = Poco::DateTimeFormatter::format(_now, "%Y-%m-%d %H:%M:%S");
+                //Insert UTF-8 converter
+                for(unsigned int i = feedContent.find(encod, 0) + encod.length() + 1; feedContent[i] != '"'; i++){
+                    encoding += feedContent[i];
+                }
+                commonOps::logMessage("recoverFeed", "Encoding: " + encoding, Poco::Message::PRIO_DEBUG);
+                if(encoding.compare("UTF-8")){
+                    char *destiny, *orig;
+                    size_t inBytes, outBytes, error;
+                    conversor = iconv_open("UTF-8//TRANSLIT", encoding.c_str());
+                    if(conversor == (iconv_t)-1){
+                        return commonOps::erroOpJSON(op, "not_rss");
+                    }
+                    inBytes = outBytes = (size_t)feedContent.length();
+                    orig = (char*)calloc(feedContent.length() + 1, sizeof(char));
+                    destiny = (char*)calloc(feedContent.length() + 1, sizeof(char));
+                    strcpy(orig, feedContent.c_str());
+                    error = iconv(conversor, &orig, &inBytes, &destiny, &outBytes);
+                    if(error == (size_t)-1){
+                        iconv_close(conversor);
+                        free(destiny);
+                        free(orig);
+                        return commonOps::erroOpJSON(op, "not_rss");
+                    }
+                    feedContent = destiny;
+                    iconv_close(conversor);
+                    free(destiny);
+                    free(orig);
+                }
                 if(updateCache){
                     //Here we update the link that is already in cache
                     session << "UPDATE `rssreader`.`linkCache` SET `content` = ?, `expirationDate` = ? WHERE (`link` = ?)",

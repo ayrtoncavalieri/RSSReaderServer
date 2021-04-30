@@ -38,7 +38,9 @@
 #include <Poco/Net/HTTPSClientSession.h>
 #include <Poco/Net/HTTPClientSession.h>
 #include <istream>
+#include <cstring>
 #include <time.h>
+#include <iconv.h>
 
 class recFeed{
     public:

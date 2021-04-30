@@ -20,12 +20,15 @@
 Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr req, Poco::Data::Session &session, std::string salt)
 {
     Poco::JSON::Object::Ptr reqResp;
-    std::string receivedFeed, cacheControl;
+    std::string receivedFeed, cacheControl, encoding;
     const std::string maxAgeStr("max-age=");
     const std::string defaultTimeToLive("7200");
+    const std::string encod("encoding=");
     bool sslInitialized = false;
     unsigned int linksFound = 0;
     std::string feedName, feedCategory, email, uuid;
+    iconv_t conversor;
+    
     try{
         reqResp = silentLogin::login(op, req, session, salt);
         if(reqResp->has("error")){
@@ -107,7 +110,10 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
             }else{
                 return commonOps::erroOpJSON(op, "invalid_address");
             }
-            
+            for(unsigned int i = receivedFeed.find(encod, 0) + encod.length() + 1; receivedFeed[i] != '"'; i++){
+                encoding += receivedFeed[i];
+            }
+            Poco::toUpperInPlace(encoding);
             Poco::XML::DOMParser parser;
             Poco::AutoPtr<Poco::XML::Document> feed = parser.parseString(receivedFeed);
             Poco::XML::ElementsByTagNameList *elements = (Poco::XML::ElementsByTagNameList*)feed->getElementsByTagName("rss");
@@ -136,6 +142,30 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
             const std::string completeURI(uri.toString());
             std::string val(completeURI);
             std::string expDateString = Poco::DateTimeFormatter::format(expirationDate, "%Y-%m-%d %H:%M:%S");
+            commonOps::logMessage("addFeed", "Encoding: " + encoding, Poco::Message::PRIO_DEBUG);
+            if(encoding.compare("UTF-8")){
+                char *destiny, *orig;
+                size_t inBytes, outBytes, error;
+                conversor = iconv_open("UTF-8//TRANSLIT", encoding.c_str());
+                if(conversor == (iconv_t)-1){
+                    return commonOps::erroOpJSON(op, "not_rss");
+                }
+                inBytes = outBytes = (size_t)receivedFeed.length();
+                orig = (char*)calloc(receivedFeed.length() + 1, sizeof(char));
+                destiny = (char*)calloc(receivedFeed.length() + 1, sizeof(char));
+                strcpy(orig, receivedFeed.c_str());
+                error = iconv(conversor, &orig, &inBytes, &destiny, &outBytes);
+                if(error == (size_t)-1){
+                    iconv_close(conversor);
+                    free(destiny);
+                    free(orig);
+                    return commonOps::erroOpJSON(op, "not_rss");
+                }
+                receivedFeed = destiny;
+                iconv_close(conversor);
+                free(destiny);
+                free(orig);
+            }
             session << "INSERT INTO `rssreader`.`linkCache` (`link`, `content`, `expirationDate`) VALUES (?, ?, ?);", 
             use(val), use(receivedFeed), use(expDateString), now;
         }

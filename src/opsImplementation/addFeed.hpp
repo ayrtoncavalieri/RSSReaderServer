@@ -45,7 +45,9 @@
 #include <Poco/DateTimeFormatter.h>
 #include <Poco/Net/NetException.h>
 #include <istream>
+#include <cstring>
 #include <time.h>
+#include <iconv.h>
 
 class addFeed{
     public:
