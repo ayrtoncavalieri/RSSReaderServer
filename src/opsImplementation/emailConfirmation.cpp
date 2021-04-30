@@ -97,6 +97,7 @@ Poco::JSON::Object::Ptr emailConfirmation::eConf(unsigned int op, Poco::JSON::Ob
             reqResp = new Poco::JSON::Object;
             reqResp->set("status", "OK");
             reqResp->set("op", op);
+            reqResp->set("verified", true);
         }else if(req->has("variable") && req->has("uuid")){
             reqResp = silentLogin::login(op, req, session, salt);
             if(!reqResp->has("error")){
