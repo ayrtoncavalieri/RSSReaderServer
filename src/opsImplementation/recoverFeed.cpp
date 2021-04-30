@@ -119,18 +119,30 @@ Poco::JSON::Object::Ptr recFeed::recover(unsigned int op, Poco::JSON::Object::Pt
                 }
                 commonOps::logMessage("recoverFeed", "Encoding: " + encoding, Poco::Message::PRIO_DEBUG);
                 if(encoding.compare("UTF-8")){
-                    char *destiny, *orig;
+                    char *destiny, *orig, *_destiny, *_orig;
                     size_t inBytes, outBytes, error;
                     conversor = iconv_open("UTF-8//TRANSLIT", encoding.c_str());
                     if(conversor == (iconv_t)-1){
                         return commonOps::erroOpJSON(op, "not_rss");
                     }
-                    inBytes = outBytes = (size_t)feedContent.length();
+                    inBytes = (size_t)feedContent.length() * sizeof(char);
+                    outBytes = (size_t)((feedContent.length() * 2) + 2) * sizeof(char);
                     orig = (char*)calloc(feedContent.length() + 1, sizeof(char));
                     destiny = (char*)calloc(feedContent.length() + 1, sizeof(char));
-                    strcpy(orig, feedContent.c_str());
-                    error = iconv(conversor, &orig, &inBytes, &destiny, &outBytes);
+                    _orig = orig;
+                    _destiny = destiny;
+                    mempcpy(_orig, feedContent.c_str(), feedContent.size());
+                    error = iconv(conversor, &_orig, &inBytes, &_destiny, &outBytes);
                     if(error == (size_t)-1){
+                        std::string errorDescription;
+                        if(errno == EINVAL){
+                            errorDescription = "EINVAL";
+                        }else if(errno == E2BIG){
+                            errorDescription = "E2BIG";
+                        }else if(errno == EILSEQ){
+                            errorDescription = "EILSEQ";
+                        }
+                        commonOps::logMessage("recoverFeed", "Conversion error: " + errorDescription, Poco::Message::PRIO_ERROR);
                         iconv_close(conversor);
                         free(destiny);
                         free(orig);

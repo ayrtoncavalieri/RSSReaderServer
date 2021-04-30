@@ -150,17 +150,16 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
                 if(conversor == (iconv_t)-1){
                     return commonOps::erroOpJSON(op, "not_rss");
                 }
-                inBytes = outBytes = (size_t)receivedFeed.length();
+                inBytes = (size_t)receivedFeed.length() * sizeof(char);
+                outBytes = (size_t)((receivedFeed.length() * 2) + 2) * sizeof(char);
                 orig = (char*)calloc(receivedFeed.length() + 1, sizeof(char));
-                destiny = (char*)calloc(receivedFeed.length() + 1, sizeof(char));
+                destiny = (char*)calloc((receivedFeed.length() * 2) + 2, sizeof(char));
                 _orig = orig;
                 _destiny = destiny;
-                strcpy(orig, receivedFeed.c_str());
+                //strcpy(orig, receivedFeed.c_str());
+                mempcpy(_orig, receivedFeed.c_str(), receivedFeed.size());
                 error = iconv(conversor, &_orig, &inBytes, &_destiny, &outBytes);
                 if(error == (size_t)-1){
-                    iconv_close(conversor);
-                    free(destiny);
-                    free(orig);
                     std::string errorDescription;
                     if(errno == EINVAL){
                         errorDescription = "EINVAL";
@@ -170,6 +169,9 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
                         errorDescription = "EILSEQ";
                     }
                     commonOps::logMessage("addFeed", "Conversion error: " + errorDescription, Poco::Message::PRIO_ERROR);
+                    iconv_close(conversor);
+                    free(destiny);
+                    free(orig);
                     return commonOps::erroOpJSON(op, "not_rss");
                 }
                 receivedFeed = destiny;
