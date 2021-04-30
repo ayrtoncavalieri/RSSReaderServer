@@ -114,7 +114,7 @@ Poco::JSON::Object::Ptr recFeed::recover(unsigned int op, Poco::JSON::Object::Pt
                 _now += timeToLive;
                 std::string expDateString = Poco::DateTimeFormatter::format(_now, "%Y-%m-%d %H:%M:%S");
                 //Insert UTF-8 converter
-                for(unsigned int i = feedContent.find(encod, 0) + encod.length() + 1; feedContent[i] != '"'; i++){
+                for(unsigned int i = feedContent.find(encod, 0) + encod.length() + 1; feedContent[i] != '"' && feedContent[i] != '\''; i++){
                     encoding += feedContent[i];
                 }
                 commonOps::logMessage("recoverFeed", "Encoding: " + encoding, Poco::Message::PRIO_DEBUG);
@@ -128,7 +128,7 @@ Poco::JSON::Object::Ptr recFeed::recover(unsigned int op, Poco::JSON::Object::Pt
                     inBytes = (size_t)feedContent.length() * sizeof(char);
                     outBytes = (size_t)((feedContent.length() * 2) + 2) * sizeof(char);
                     orig = (char*)calloc(feedContent.length() + 1, sizeof(char));
-                    destiny = (char*)calloc(feedContent.length() + 1, sizeof(char));
+                    destiny = (char*)calloc((feedContent.length() * 2) + 2, sizeof(char));
                     _orig = orig;
                     _destiny = destiny;
                     mempcpy(_orig, feedContent.c_str(), feedContent.size());

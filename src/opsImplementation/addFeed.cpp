@@ -110,7 +110,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
             }else{
                 return commonOps::erroOpJSON(op, "invalid_address");
             }
-            for(unsigned int i = receivedFeed.find(encod, 0) + encod.length() + 1; receivedFeed[i] != '"'; i++){
+            for(unsigned int i = receivedFeed.find(encod, 0) + encod.length() + 1; receivedFeed[i] != '"' && receivedFeed[i] != '\''; i++){
                 encoding += receivedFeed[i];
             }
             Poco::toUpperInPlace(encoding);
