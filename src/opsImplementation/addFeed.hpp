@@ -48,6 +48,7 @@
 #include <cstring>
 #include <time.h>
 #include <iconv.h>
+#include <errno.h>
 
 class addFeed{
     public:

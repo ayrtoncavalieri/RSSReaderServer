@@ -144,7 +144,7 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
             std::string expDateString = Poco::DateTimeFormatter::format(expirationDate, "%Y-%m-%d %H:%M:%S");
             commonOps::logMessage("addFeed", "Encoding: " + encoding, Poco::Message::PRIO_DEBUG);
             if(encoding.compare("UTF-8")){
-                char *destiny, *orig;
+                char *destiny, *orig, *_destiny, *_orig;
                 size_t inBytes, outBytes, error;
                 conversor = iconv_open("UTF-8//TRANSLIT", encoding.c_str());
                 if(conversor == (iconv_t)-1){
@@ -153,12 +153,23 @@ Poco::JSON::Object::Ptr addFeed::add(unsigned int op, Poco::JSON::Object::Ptr re
                 inBytes = outBytes = (size_t)receivedFeed.length();
                 orig = (char*)calloc(receivedFeed.length() + 1, sizeof(char));
                 destiny = (char*)calloc(receivedFeed.length() + 1, sizeof(char));
+                _orig = orig;
+                _destiny = destiny;
                 strcpy(orig, receivedFeed.c_str());
-                error = iconv(conversor, &orig, &inBytes, &destiny, &outBytes);
+                error = iconv(conversor, &_orig, &inBytes, &_destiny, &outBytes);
                 if(error == (size_t)-1){
                     iconv_close(conversor);
                     free(destiny);
                     free(orig);
+                    std::string errorDescription;
+                    if(errno == EINVAL){
+                        errorDescription = "EINVAL";
+                    }else if(errno == E2BIG){
+                        errorDescription = "E2BIG";
+                    }else if(errno == EILSEQ){
+                        errorDescription = "EILSEQ";
+                    }
+                    commonOps::logMessage("addFeed", "Conversion error: " + errorDescription, Poco::Message::PRIO_ERROR);
                     return commonOps::erroOpJSON(op, "not_rss");
                 }
                 receivedFeed = destiny;
